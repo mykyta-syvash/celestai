@@ -742,7 +742,7 @@ class CharacterFactory {
 
     // Head Group
     const headGroup = new THREE.Group();
-    headGroup.position.y = 0.98;
+    headGroup.position.y = 1.2;
     torso.add(headGroup);
 
     // Low-poly Head Mesh

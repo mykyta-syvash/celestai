@@ -17,7 +17,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "FIRST JUDGMENT",
     description: "Judge your first soul.",
     category: "JUDGMENT",
-    icon: "⚖️",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 2
@@ -27,7 +27,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "JUDGE",
     description: "Judge 10 souls correctly.",
     category: "JUDGMENT",
-    icon: "📜",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 2
@@ -37,7 +37,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "JUST BEGINNING",
     description: "Judge 25 souls correctly.",
     category: "JUDGMENT",
-    icon: "✨",
+    icon: "",
     secret: false,
     target: 25,
     xpReward: 2
@@ -47,7 +47,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "SEASONED JUDGE",
     description: "Judge 50 souls correctly.",
     category: "JUDGMENT",
-    icon: "🕯️",
+    icon: "",
     secret: false,
     target: 50,
     xpReward: 5
@@ -57,7 +57,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "DIVINE JUDGE",
     description: "Judge 100 souls correctly.",
     category: "JUDGMENT",
-    icon: "👑",
+    icon: "",
     secret: false,
     target: 100,
     xpReward: 5
@@ -67,7 +67,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "SUPREME JUDGE",
     description: "Judge 250 souls correctly.",
     category: "JUDGMENT",
-    icon: "🏛️",
+    icon: "",
     secret: false,
     target: 250,
     xpReward: 10
@@ -77,7 +77,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "JUDGMENT DAY",
     description: "Judge 500 souls correctly.",
     category: "JUDGMENT",
-    icon: "🌟",
+    icon: "",
     secret: false,
     target: 500,
     xpReward: 10
@@ -87,7 +87,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "HEAVEN'S GATEKEEPER",
     description: "Send 100 souls to Heaven.",
     category: "JUDGMENT",
-    icon: "🪽",
+    icon: "",
     secret: false,
     target: 100,
     xpReward: 5
@@ -97,7 +97,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "HELL'S GATEKEEPER",
     description: "Send 100 souls to Hell.",
     category: "JUDGMENT",
-    icon: "🔥",
+    icon: "",
     secret: false,
     target: 100,
     xpReward: 5
@@ -107,7 +107,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "EQUAL JUSTICE",
     description: "Send 50 souls to Heaven and 50 souls to Hell.",
     category: "JUDGMENT",
-    icon: "⚖️",
+    icon: "",
     secret: false,
     target: 50,
     xpReward: 5
@@ -121,7 +121,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "ON FIRE",
     description: "Reach a 5 judgment streak.",
     category: "STREAK & SPEED",
-    icon: "🔥",
+    icon: "",
     secret: false,
     target: 5,
     xpReward: 2
@@ -131,7 +131,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "UNSTOPPABLE",
     description: "Reach a 10 judgment streak.",
     category: "STREAK & SPEED",
-    icon: "⚡",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -141,7 +141,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "DIVINE STREAK",
     description: "Reach a 20 judgment streak.",
     category: "STREAK & SPEED",
-    icon: "☄️",
+    icon: "☄",
     secret: false,
     target: 20,
     xpReward: 10
@@ -151,7 +151,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "PERFECT JUDGMENT",
     description: "Judge 10 souls correctly in a row.",
     category: "STREAK & SPEED",
-    icon: "🎯",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -161,7 +161,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "NO MERCY",
     description: "Send 10 souls to Hell in a row.",
     category: "STREAK & SPEED",
-    icon: "🌋",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -171,7 +171,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "GUARDIAN ANGEL",
     description: "Send 10 souls to Heaven in a row.",
     category: "STREAK & SPEED",
-    icon: "🕊️",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -181,7 +181,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "LAST SECOND",
     description: "Make a correct judgment with less than 1 second remaining.",
     category: "STREAK & SPEED",
-    icon: "⏱️",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -191,7 +191,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "SPEED JUDGE",
     description: "Make 5 correct judgments in a row in under 2 seconds each.",
     category: "STREAK & SPEED",
-    icon: "💨",
+    icon: "",
     secret: false,
     target: 5,
     xpReward: 5
@@ -201,7 +201,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "CLUTCH",
     description: "Make a correct judgment with exactly 1 life remaining.",
     category: "STREAK & SPEED",
-    icon: "🩸",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -211,7 +211,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "AGAINST THE CLOCK",
     description: "Make 25 correct judgments under 2 seconds.",
     category: "STREAK & SPEED",
-    icon: "⏳",
+    icon: "",
     secret: false,
     target: 25,
     xpReward: 5
@@ -225,7 +225,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "SURVIVOR",
     description: "Judge 20 souls in a single run.",
     category: "SURVIVAL",
-    icon: "🛡️",
+    icon: "",
     secret: false,
     target: 20,
     xpReward: 5
@@ -235,7 +235,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "ENDURANCE",
     description: "Judge 50 souls in a single run.",
     category: "SURVIVAL",
-    icon: "🗿",
+    icon: "",
     secret: false,
     target: 50,
     xpReward: 10
@@ -245,7 +245,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "IMMORTAL",
     description: "Judge 100 souls in a single run.",
     category: "SURVIVAL",
-    icon: "🌌",
+    icon: "",
     secret: false,
     target: 100,
     xpReward: 10
@@ -255,7 +255,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "THREE LIVES",
     description: "Judge 10 souls without losing a life.",
     category: "SURVIVAL",
-    icon: "💎",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -265,7 +265,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "UNTOUCHABLE",
     description: "Judge 25 souls without losing a life.",
     category: "SURVIVAL",
-    icon: "✨",
+    icon: "",
     secret: false,
     target: 25,
     xpReward: 10
@@ -275,7 +275,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "NEAR DEATH",
     description: "Make a correct judgment with only one life remaining.",
     category: "SURVIVAL",
-    icon: "❤️‍🔥",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 2
@@ -285,7 +285,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "SECOND CHANCE",
     description: "Use Second Chance and make the second judgment correctly.",
     category: "SURVIVAL",
-    icon: "🔄",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -295,7 +295,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "DIVINE INTERVENTION",
     description: "Survive using Divine Intervention.",
     category: "SURVIVAL",
-    icon: "💫",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -305,7 +305,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "BLESSED",
     description: "Be forgiven by the Divine.",
     category: "SURVIVAL",
-    icon: "🕊️",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -315,7 +315,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "IMMORTAL SOUL",
     description: "Survive a fatal mistake with Immortal Soul.",
     category: "SURVIVAL",
-    icon: "🛡️",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -329,7 +329,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "FIRST POWER",
     description: "Unlock your first divine skill.",
     category: "SKILLS",
-    icon: "🔮",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 2
@@ -339,7 +339,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "TIME LORD",
     description: "Use Time Pause 10 times.",
     category: "SKILLS",
-    icon: "⏸️",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -349,7 +349,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "TIME BENDER",
     description: "Use Time Dilation 10 times.",
     category: "SKILLS",
-    icon: "⏳",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -359,7 +359,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "TRUE SIGHT",
     description: "Use True Sight 10 times.",
     category: "SKILLS",
-    icon: "👁️",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -369,7 +369,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "CLARITY",
     description: "Use Moral Clarity 10 times.",
     category: "SKILLS",
-    icon: "⚖️",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -379,7 +379,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "DOUBLE VISION",
     description: "Use Double Judgment 10 times.",
     category: "SKILLS",
-    icon: "⚡",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -389,7 +389,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "FINAL WORD",
     description: "Successfully activate Final Word.",
     category: "SKILLS",
-    icon: "📜",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -399,7 +399,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "FULL AUTHORITY",
     description: "Unlock every skill in the Authority branch.",
     category: "SKILLS",
-    icon: "👑",
+    icon: "",
     secret: false,
     target: 4,
     xpReward: 10
@@ -409,7 +409,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "FULL JUSTICE",
     description: "Unlock every skill in the Justice branch.",
     category: "SKILLS",
-    icon: "⚖️",
+    icon: "",
     secret: false,
     target: 4,
     xpReward: 10
@@ -419,7 +419,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "FULL DIVINITY",
     description: "Unlock every skill in the Divinity branch.",
     category: "SKILLS",
-    icon: "🕊️",
+    icon: "",
     secret: false,
     target: 4,
     xpReward: 10
@@ -443,7 +443,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "OVERTHINKER",
     description: "Take almost the entire timer and still make the correct judgment.",
     category: "SPECIAL",
-    icon: "🤔",
+    icon: "",
     secret: true,
     target: 1,
     xpReward: 5
@@ -453,7 +453,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "MERCY",
     description: "Defend a morally controversial soul.",
     category: "SPECIAL",
-    icon: "🕊️",
+    icon: "",
     secret: true,
     target: 1,
     xpReward: 5
@@ -463,7 +463,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "EXECUTIONER",
     description: "Condemn a morally controversial soul.",
     category: "SPECIAL",
-    icon: "⚔️",
+    icon: "",
     secret: true,
     target: 1,
     xpReward: 5
@@ -473,7 +473,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "THE GAMBLER",
     description: "Correctly judge a difficult soul almost instantly.",
     category: "SPECIAL",
-    icon: "🎲",
+    icon: "",
     secret: true,
     target: 1,
     xpReward: 5
@@ -483,7 +483,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "CONTRARIAN",
     description: "Make an unexpected but defensible judgment.",
     category: "SPECIAL",
-    icon: "🎭",
+    icon: "",
     secret: true,
     target: 1,
     xpReward: 5
@@ -493,7 +493,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "COIN OF FATE",
     description: "Make 10 Heaven and 10 Hell decisions in the same run.",
     category: "SPECIAL",
-    icon: "🪙",
+    icon: "",
     secret: false,
     target: 10,
     xpReward: 5
@@ -503,7 +503,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "THE IMPOSSIBLE CHOICE",
     description: "Correctly judge the hardest case.",
     category: "SPECIAL",
-    icon: "🌌",
+    icon: "",
     secret: true,
     target: 1,
     xpReward: 10
@@ -513,7 +513,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "JUDGED BY JUDGMENT",
     description: "Reach the Angel's final judgment.",
     category: "SPECIAL",
-    icon: "👼",
+    icon: "",
     secret: false,
     target: 1,
     xpReward: 5
@@ -523,7 +523,7 @@ const ACHIEVEMENT_DEFINITIONS = [
     name: "CELESTAI",
     description: "Become the ultimate Judge.",
     category: "SPECIAL",
-    icon: "🏆",
+    icon: "",
     secret: false,
     target: 49,
     xpReward: 25
@@ -978,7 +978,7 @@ class AchievementManager {
     toast.innerHTML = `
       <div class="toast-pedestal"></div>
       <div class="toast-content">
-        <span class="toast-badge">🏆 ACHIEVEMENT UNLOCKED</span>
+        <span class="toast-badge"> ACHIEVEMENT UNLOCKED</span>
         <div class="toast-main">
           <span class="toast-icon">${ach.icon}</span>
           <div class="toast-info">
@@ -1056,7 +1056,7 @@ class AchievementManager {
       else if (isSecretLocked) cardClass += " secret-locked";
       else cardClass += " locked";
 
-      let icon = isSecretLocked ? "🔒" : ach.icon;
+      let icon = isSecretLocked ? "" : ach.icon;
       let name = isSecretLocked ? "???" : ach.name;
       let desc = isSecretLocked ? "SECRET ACHIEVEMENT" : ach.description;
 

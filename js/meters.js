@@ -8,10 +8,10 @@
  */
 (function () {
   const METERS = [
-    { key: "mercy", label: "MERCY", icon: "🕊️" },
-    { key: "justice", label: "JUSTICE", icon: "⚖️" },
-    { key: "order", label: "ORDER", icon: "📜" },
-    { key: "faith", label: "FAITH", icon: "🙏" }
+    { key: "mercy", label: "MERCY", icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>' },
+    { key: "justice", label: "JUSTICE", icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M6 20h12M5 8h14M5 8l-2.5 6h5zM19 8l-2.5 6h5z"/></svg>' },
+    { key: "order", label: "ORDER", icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="1.5"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>' },
+    { key: "faith", label: "FAITH", icon: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 8h10"/></svg>' }
   ];
   const KEYS = METERS.map((m) => m.key);
   const MIN = 0;

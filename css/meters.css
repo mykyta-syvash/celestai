@@ -192,3 +192,10 @@
   .meter-icon { font-size: 15px; }
   .celestial-hud .hud-wing { padding: 6px 8px; }
 }
+
+/* HUD: no clipped wings, nothing cut off */
+.celestial-hud .hud-left,
+.celestial-hud .hud-right { clip-path: none; padding: 6px 10px; }
+.celestial-hud .reign-pill { font-size: 10px; white-space: nowrap; }
+.celestial-hud .hud-audio-btn { font-size: 9px; font-weight: 800; letter-spacing: 1px; width: auto; padding: 0 8px; }
+.meter-bar svg { display: block; margin: 0 auto; color: #f3e6c4; }

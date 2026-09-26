@@ -1,0 +1,37 @@
+/* CELESTAI clean pass: flat surfaces, no glows, no vibe-lava gradients. Loaded last. */
+
+/* Kill glows everywhere */
+*, *::before, *::after { text-shadow: none !important; }
+.game-screen *, .celestial-hud *, .celestial-hud, #verdict-modal *, .angel-dialog-box, .angel-dialog-box * {
+  box-shadow: none !important;
+  filter: none !important;
+}
+.ach-card-glow, .altar-glow-burst, .tablet-frame-runes { display: none !important; }
+
+/* Flat panels & buttons */
+:root { --clean-bg: #12141c; --clean-panel: #1a1d27; --clean-line: rgba(255, 255, 255, 0.10); --clean-text: #ece7da; --clean-dim: #8c8fa0; --clean-gold: #d8b45a; }
+.hud-wing, .meter-bar, .stone-plaque-btn, .menu-progression-plaque, .menu-settings-btn,
+.achievement-card, .ach-tab, .achievements-progress-card, .skill-node-card, .branch-tab,
+.pre-run-card, .results-card-item, .record-card, .settings-item, .verdict-tablet,
+.angel-dialog-box, .compact-soul-tablet, .judgment-tablet, .tree-progression-bar {
+  background: var(--clean-panel) !important;
+  border: 1px solid var(--clean-line) !important;
+  border-radius: 14px !important;
+}
+.ach-tab.active, .branch-tab.active { background: var(--clean-gold) !important; color: #14161e !important; border-color: var(--clean-gold) !important; }
+.menu-settings-btn { width: 40px !important; height: 40px !important; border-radius: 12px !important; }
+.menu-settings-btn .settings-gear-icon { color: var(--clean-text) !important; }
+.btn-main-action, .menu-btn, .btn-unlock.ready, .altar-judge-btn .altar-btn-top {
+  background: var(--clean-text) !important; color: #14161e !important; border: none !important; border-radius: 14px !important;
+}
+.btn-text-back { color: var(--clean-dim) !important; }
+
+/* Achievements: responsive, no squashed rows, tabs don't get cut */
+.achievements-container { display: flex; flex-direction: column; height: 100%; min-height: 0; padding: 20px 16px !important; box-sizing: border-box; }
+.achievement-tabs { flex-wrap: wrap !important; overflow: visible !important; justify-content: center; }
+.ach-tab { flex: 0 0 auto; padding: 7px 10px !important; font-size: 10px !important; }
+.achievements-cards-scroll { flex: 1 1 auto !important; min-height: 0 !important; max-height: none !important; }
+.achievement-card { flex: 0 0 auto !important; min-height: 64px; overflow: visible !important; }
+.ach-card-body { align-items: center; gap: 10px; }
+.ach-card-title { white-space: normal !important; font-size: 13px !important; }
+.ach-card-desc { white-space: normal !important; }

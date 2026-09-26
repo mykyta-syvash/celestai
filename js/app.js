@@ -32,7 +32,7 @@ const REIGN_ENDINGS = {
   }
 };
 
-const METER_ICONS = { mercy: "🕊️", justice: "⚖️", order: "📜", faith: "🙏" };
+const METER_ICONS = { mercy: "", justice: "", order: "", faith: "" };
 
 class CelestialGame {
   constructor() {
@@ -301,7 +301,7 @@ class CelestialGame {
     // Audio Button
     this.dom.btnAudio.addEventListener("click", () => {
       const enabled = window.soundEngine.toggle(this.isMenuScreen());
-      this.dom.btnAudio.textContent = enabled ? "🔊" : "🔇";
+      this.dom.btnAudio.textContent = enabled ? "SOUND" : "MUTED";
       this.dom.btnAudio.classList.toggle("muted", !enabled);
       if (this.dom.settingToggleSound) {
         this.dom.settingToggleSound.textContent = enabled ? "ENABLED" : "MUTED";
@@ -353,7 +353,7 @@ class CelestialGame {
       const enabled = window.soundEngine.toggle(this.isMenuScreen());
       this.dom.settingToggleSound.textContent = enabled ? "ENABLED" : "MUTED";
       this.dom.settingToggleSound.classList.toggle("active", enabled);
-      this.dom.btnAudio.textContent = enabled ? "🔊" : "🔇";
+      this.dom.btnAudio.textContent = enabled ? "SOUND" : "MUTED";
       this.dom.btnAudio.classList.toggle("muted", !enabled);
     });
     this.dom.settingToggleMusic.addEventListener("click", () => {
@@ -671,7 +671,7 @@ class CelestialGame {
         consume();
         window.soundEngine.playAbility();
         this.showAbilityToast(
-          `👁️ TRUE SIGHT: "${story.hiddenFact || "This soul hides nothing. What you see is all there is."}"`,
+          ` TRUE SIGHT: "${story.hiddenFact || "This soul hides nothing. What you see is all there is."}"`,
           5000
         );
         break;
@@ -682,7 +682,7 @@ class CelestialGame {
         this.revealLevel = Math.max(this.revealLevel, 1);
         const ma = story.moralAnalysis || {};
         this.showAbilityToast(
-          `⚖️ MORAL CLARITY: [INTENT: ${ma.intent || "UNCLEAR"}] • [CONSEQUENCES: ${ma.consequences || "UNCLEAR"}] — ` +
+          ` MORAL CLARITY: [INTENT: ${ma.intent || "UNCLEAR"}] • [CONSEQUENCES: ${ma.consequences || "UNCLEAR"}] — ` +
             `HEAVEN ${this.describeEffects(story.heaven && story.heaven.effects, false)} | ` +
             `HELL ${this.describeEffects(story.hell && story.hell.effects, false)}`,
           6000
@@ -695,7 +695,7 @@ class CelestialGame {
         window.soundEngine.playAbility();
         this.revealLevel = 2;
         this.showAbilityToast(
-          `⚡ DOUBLE JUDGMENT — HEAVEN: ${this.describeEffects(story.heaven && story.heaven.effects, true)} | ` +
+          ` DOUBLE JUDGMENT — HEAVEN: ${this.describeEffects(story.heaven && story.heaven.effects, true)} | ` +
             `HELL: ${this.describeEffects(story.hell && story.hell.effects, true)}`,
           6500
         );
@@ -705,7 +705,7 @@ class CelestialGame {
         consume();
         window.soundEngine.playAbility();
         this.finalWordArmed = true;
-        this.showAbilityToast(`📜 FINAL WORD: your next verdict cannot push any meter toward its brink.`, 3500);
+        this.showAbilityToast(` FINAL WORD: your next verdict cannot push any meter toward its brink.`, 3500);
         break;
 
       case "time_pause":
@@ -713,16 +713,16 @@ class CelestialGame {
           consume();
           window.soundEngine.playTimeFreeze();
           this.freezeTime(3.0);
-          this.showAbilityToast(`⏸️ TIME PAUSED FOR 3 SECONDS`, 2500);
+          this.showAbilityToast(` TIME PAUSED FOR 3 SECONDS`, 2500);
         } else {
           const eased = this.easeMeters("extreme");
           if (!eased) {
-            this.showAbilityToast(`⏸️ The scales are already at rest.`, 2000);
+            this.showAbilityToast(` The scales are already at rest.`, 2000);
             return;
           }
           consume();
           window.soundEngine.playTimeFreeze();
-          this.showAbilityToast(`⏸️ STILLNESS: ${this.describeEffects(eased, true)} toward balance`, 3000);
+          this.showAbilityToast(` STILLNESS: ${this.describeEffects(eased, true)} toward balance`, 3000);
         }
         break;
 
@@ -733,9 +733,9 @@ class CelestialGame {
           this.timeLeft += 3.0;
           this.timerDuration = Math.max(this.timerDuration, this.timeLeft);
           this.updateTimerUI();
-          this.showAbilityToast(`⏳ TIME EXTENDED (+3s)`, 2500);
+          this.showAbilityToast(` TIME EXTENDED (+3s)`, 2500);
         } else {
-          this.showAbilityToast(`⏳ DEFERRAL: ${story.name} is sent back to wait. No verdict, no change.`, 3000);
+          this.showAbilityToast(` DEFERRAL: ${story.name} is sent back to wait. No verdict, no change.`, 3000);
           this.deferSoul();
         }
         break;
@@ -745,16 +745,16 @@ class CelestialGame {
           consume();
           window.soundEngine.playTimeFreeze();
           this.freezeTime(10.0);
-          this.showAbilityToast(`👑 ABSOLUTE JUDGMENT: TIME HAS STOPPED (10s)`, 3500);
+          this.showAbilityToast(` ABSOLUTE JUDGMENT: TIME HAS STOPPED (10s)`, 3500);
         } else {
           const eased = this.easeMeters("all");
           if (!eased) {
-            this.showAbilityToast(`👑 The scales are already at rest.`, 2000);
+            this.showAbilityToast(` The scales are already at rest.`, 2000);
             return;
           }
           consume();
           window.soundEngine.playTimeFreeze();
-          this.showAbilityToast(`👑 ABSOLUTE JUDGMENT: Heaven rebalances ${this.describeEffects(eased, true)}`, 3500);
+          this.showAbilityToast(` ABSOLUTE JUDGMENT: Heaven rebalances ${this.describeEffects(eased, true)}`, 3500);
         }
         break;
 
@@ -766,7 +766,7 @@ class CelestialGame {
     if (this.previewSide && this.state === "JUDGING") this.previewDecision(this.previewSide);
   }
 
-  /** "🕊️↑11 ⚖️↓4" (exact) or "🕊️↑ ⚖️↓" (direction only). */
+  /** "↑11 ↓4" (exact) or "↑ ↓" (direction only). */
   describeEffects(effects, exact) {
     const parts = [];
     Object.keys(METER_ICONS).forEach((k) => {
@@ -970,7 +970,7 @@ class CelestialGame {
       result.deaths = [];
       result.values = ms.values();
       window.soundEngine.playAbility();
-      const note = `🕊️ FORGIVENESS: ${names} would have collapsed — restored to 50.`;
+      const note = ` FORGIVENESS: ${names} would have collapsed — restored to 50.`;
       this.showAbilityToast(note, 3500);
       return note;
     }
@@ -982,7 +982,7 @@ class CelestialGame {
       result.deaths = [];
       result.values = ms.values();
       window.soundEngine.playAbility();
-      const note = `🛡️ IMMORTAL SOUL: ${names} collapsed, but the Angels restored every meter to 50.`;
+      const note = ` IMMORTAL SOUL: ${names} collapsed, but the Angels restored every meter to 50.`;
       this.showAbilityToast(note, 4000);
       return note;
     }
@@ -999,7 +999,7 @@ class CelestialGame {
     window.skillManager.useCharge("divine_intervention");
     ms.set(key, vals[key] <= 10 ? 30 : 70);
     window.soundEngine.playAbility();
-    const note = `✨ DIVINE INTERVENTION: ${key.toUpperCase()} pulled back from the brink.`;
+    const note = ` DIVINE INTERVENTION: ${key.toUpperCase()} pulled back from the brink.`;
     this.showAbilityToast(note, 3500);
     return note;
   }
@@ -1045,7 +1045,7 @@ class CelestialGame {
       ms.restore(snap);
       this.finalWordArmed = wasArmed;
       window.soundEngine.playAbility();
-      this.showAbilityToast(`🔄 SECOND CHANCE: That verdict would have ended your reign. It is undone — judge again.`, 4000);
+      this.showAbilityToast(` SECOND CHANCE: That verdict would have ended your reign. It is undone — judge again.`, 4000);
       this.updateHUD();
       this.state = "JUDGING";
       this.setButtonsDisabled(false);
@@ -1055,7 +1055,7 @@ class CelestialGame {
 
     const notes = [];
     if (result.warded && result.warded.length) {
-      notes.push(`❤️ WARD: ${result.warded.map((k) => k.toUpperCase()).join(" & ")} stopped at the brink.`);
+      notes.push(` WARD: ${result.warded.map((k) => k.toUpperCase()).join(" & ")} stopped at the brink.`);
     }
     const rescue = this.resolveDeaths(result);
     if (rescue) notes.push(rescue);
@@ -1063,7 +1063,7 @@ class CelestialGame {
       const divine = this.maybeDivineIntervention();
       if (divine) notes.push(divine);
     }
-    if (cancelled.length) notes.push(`📜 FINAL WORD cancelled: ${cancelled.map((k) => k.toUpperCase()).join(", ")}`);
+    if (cancelled.length) notes.push(` FINAL WORD cancelled: ${cancelled.map((k) => k.toUpperCase()).join(", ")}`);
 
     // Judgment sound synchronized with the visual sequence
     if (decision === "HEAVEN") window.soundEngine.playHeaven();
@@ -1133,7 +1133,7 @@ class CelestialGame {
       }
       this.timeLeft = 3.0;
       this.updateTimerUI();
-      this.showAbilityToast(`✨ DIVINE INTERVENTION: +3 SECONDS GRANTED`, 3000);
+      this.showAbilityToast(` DIVINE INTERVENTION: +3 SECONDS GRANTED`, 3000);
       return;
     }
 
@@ -1146,7 +1146,7 @@ class CelestialGame {
     const result = ms ? ms.apply(TIMEOUT_EFFECTS) : { deltas: {}, deaths: [], warded: [], values: {} };
     const notes = [];
     if (result.warded && result.warded.length) {
-      notes.push(`❤️ WARD: ${result.warded.map((k) => k.toUpperCase()).join(" & ")} stopped at the brink.`);
+      notes.push(` WARD: ${result.warded.map((k) => k.toUpperCase()).join(" & ")} stopped at the brink.`);
     }
     const rescue = this.resolveDeaths(result);
     if (rescue) notes.push(rescue);
@@ -1169,7 +1169,7 @@ class CelestialGame {
       window.soundEngine.playLifeLost();
       this.showScorePopup("THE SCALES BREAK", false);
     } else {
-      this.showScorePopup("HESITATION  📜↓ 🙏↓", false);
+      this.showScorePopup("HESITATION  ↓ ↓", false);
     }
     this.updateHUD();
 
@@ -1217,10 +1217,10 @@ class CelestialGame {
     const badge = this.dom.verdictBadge;
 
     if (dying) {
-      badge.textContent = "⚠ THE SCALES HAVE BROKEN";
+      badge.textContent = " THE SCALES HAVE BROKEN";
       badge.className = "badge-wrong";
     } else if (ev.timeout) {
-      badge.textContent = "⌛ HESITATION";
+      badge.textContent = " HESITATION";
       badge.className = "badge-wrong";
     } else if (decision === "HEAVEN") {
       badge.textContent = "✦ ASCENDED TO HEAVEN · +1 XP";
@@ -1617,7 +1617,7 @@ class CelestialGame {
         buttonHtml = `<button class="btn-unlock ready" data-unlock-id="${skill.id}">✦ UNLOCK (${skill.cost} XP) ✦</button>`;
       } else {
         const reason = !hasPrereq ? "REQUIRES PREVIOUS SKILL" : `NEED ${skill.cost} XP`;
-        statusBadge = `<span class="badge locked">🔒 LOCKED</span>`;
+        statusBadge = `<span class="badge locked"> LOCKED</span>`;
         buttonHtml = `<button class="btn-unlock locked" disabled>${reason}</button>`;
       }
 
@@ -1779,7 +1779,7 @@ class CelestialGame {
     j.torso.rotation.x = breath * 0.012;
 
     // Subtle head movement
-    j.head.position.y = 0.98 + Math.sin(time * 2.2 + 0.3) * 0.012;
+    j.head.position.y = 1.2 + Math.sin(time * 2.2 + 0.3) * 0.012;
     j.head.rotation.y = Math.sin(time * 0.7) * 0.04;
 
     // Halo floating counter-phase

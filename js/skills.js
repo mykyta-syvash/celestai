@@ -25,7 +25,7 @@ const SKILLS_DATA = {
     name: "TRUE SIGHT",
     cost: 10,
     prerequisite: null,
-    icon: "👁️",
+    icon: "I",
     type: "active",
     shortDesc: "Reveal the hidden truth the current soul never confessed.",
     runCharges: 1
@@ -36,7 +36,7 @@ const SKILLS_DATA = {
     name: "MORAL CLARITY",
     cost: 25,
     prerequisite: "true_sight",
-    icon: "⚖️",
+    icon: "II",
     type: "active",
     shortDesc: "Reveal intent vs consequences, and which way each verdict pushes every meter.",
     runCharges: 1
@@ -47,7 +47,7 @@ const SKILLS_DATA = {
     name: "DOUBLE JUDGMENT",
     cost: 50,
     prerequisite: "moral_clarity",
-    icon: "⚡",
+    icon: "III",
     type: "active",
     shortDesc: "Reveal the exact meter changes of BOTH verdicts before deciding.",
     runCharges: 1
@@ -58,7 +58,7 @@ const SKILLS_DATA = {
     name: "FINAL WORD",
     cost: 100,
     prerequisite: "double_judgment",
-    icon: "📜",
+    icon: "IV",
     type: "active",
     shortDesc: "Arm before a verdict: every change pushing a meter toward its brink is cancelled.",
     runCharges: 1
@@ -73,7 +73,7 @@ const SKILLS_DATA = {
     name: "TIME PAUSE",
     cost: 10,
     prerequisite: null,
-    icon: "⏸️",
+    icon: "I",
     type: "active",
     shortDesc: "Timed: freeze the countdown 3s. Untimed: ease your most extreme meter 10 toward balance.",
     runCharges: 1
@@ -84,7 +84,7 @@ const SKILLS_DATA = {
     name: "TIME DILATION",
     cost: 25,
     prerequisite: "time_pause",
-    icon: "⏳",
+    icon: "II",
     type: "active",
     shortDesc: "Timed: +3 seconds on the clock. Untimed: defer this soul unjudged (no meter changes).",
     runCharges: 1
@@ -95,7 +95,7 @@ const SKILLS_DATA = {
     name: "SECOND CHANCE",
     cost: 50,
     prerequisite: "time_dilation",
-    icon: "🔄",
+    icon: "III",
     type: "trigger",
     shortDesc: "When a verdict would end your reign, it is undone (meters restored) and you judge again.",
     runCharges: 1
@@ -106,7 +106,7 @@ const SKILLS_DATA = {
     name: "ABSOLUTE JUDGMENT",
     cost: 100,
     prerequisite: "second_chance",
-    icon: "👑",
+    icon: "IV",
     type: "active",
     shortDesc: "Timed: freeze time for 10s. Untimed: pull all four meters halfway back to balance.",
     runCharges: 1
@@ -121,7 +121,7 @@ const SKILLS_DATA = {
     name: "EXTRA LIFE",
     cost: 15,
     prerequisite: null,
-    icon: "❤️",
+    icon: "I",
     type: "permanent",
     shortDesc: "Permanent ward: the first time each meter hits its brink in a reign, it stops at 6/94.",
     runCharges: 0
@@ -132,7 +132,7 @@ const SKILLS_DATA = {
     name: "FORGIVENESS",
     cost: 30,
     prerequisite: "extra_life",
-    icon: "🕊️",
+    icon: "II",
     type: "trigger",
     shortDesc: "The first meter collapse of your reign is forgiven: that meter returns to 50.",
     runCharges: 1
@@ -143,7 +143,7 @@ const SKILLS_DATA = {
     name: "IMMORTAL SOUL",
     cost: 75,
     prerequisite: "forgiveness",
-    icon: "🛡️",
+    icon: "III",
     type: "trigger",
     shortDesc: "A second collapse is survived too: ALL four meters return to 50.",
     runCharges: 1
@@ -154,7 +154,7 @@ const SKILLS_DATA = {
     name: "DIVINE INTERVENTION",
     cost: 150,
     prerequisite: "immortal_soul",
-    icon: "✨",
+    icon: "IV",
     type: "trigger",
     shortDesc: "Timed: +3s instead of a hesitation penalty. Untimed: first meter to enter the danger zone is pulled back to 30/70.",
     runCharges: 1
