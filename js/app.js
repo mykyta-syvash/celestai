@@ -1260,7 +1260,9 @@ class CelestialGame {
     } else {
       // Non-blocking: next soul immediately, verdict shows as a toast that fades by itself
       this.verdictToastTimer = setTimeout(() => this.hideVerdictModal(), 1800);
-      advance();
+      // Defer: we're inside the animator's onComplete; spawning synchronously lets the
+      // animator overwrite the new soul's entrance and the game stays stuck in ENTERING.
+      this.verdictTimeout = setTimeout(advance, 60);
     }
   }
 
