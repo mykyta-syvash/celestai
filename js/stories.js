@@ -146,7 +146,8 @@ class StoryDeck {
       meters: window.meterSystem?.values?.() || {},
       flags: window.consequenceEngine?.flags?.() || [],
       soulsJudged: typeof judged === "number" ? Math.max(judged, this.soulsServed) : this.soulsServed,
-      recentIds: this.recentIds.slice(-6)
+      recentIds: this.recentIds.slice(-6),
+      history: (window.game?.reignHistory || []).slice(-8)
     };
   }
 
@@ -205,7 +206,7 @@ class StoryDeck {
     let story = null;
 
     // Every ~3rd soul, try an AI-generated soul.
-    if ((this.soulsServed + 1) % 3 === 0) story = this.takeAiSoul();
+    story = this.takeAiSoul(); // AI writes every soul when available; static deck is the fallback
 
     if (!story) {
       const prepared = this.nextPreparedSoul;

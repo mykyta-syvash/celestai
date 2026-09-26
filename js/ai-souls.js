@@ -12,7 +12,7 @@
 
   var METERS = ["mercy", "justice", "order", "faith"];
   var ARCHETYPES = ["doctor", "soldier", "businessman", "farmer", "thief", "artist", "scientist", "chef", "king", "astronaut"];
-  var QUEUE_MAX = 2;
+  var QUEUE_MAX = 3;
   var available = false;
   var queue = [];
   var inflight = 0;
@@ -119,7 +119,8 @@
       meters: meters,
       flags: Array.isArray(ctx.flags) ? ctx.flags.slice(0, 12) : [],
       soulsJudged: Number(ctx.soulsJudged) || 0,
-      recentIds: Array.isArray(ctx.recentIds) ? ctx.recentIds.slice(-10) : []
+      recentIds: Array.isArray(ctx.recentIds) ? ctx.recentIds.slice(-10) : [],
+      history: Array.isArray(ctx.history) ? ctx.history.slice(-8).map(function (h) { return { name: String(h.name || "").slice(0, 60), side: h.side === "HELL" ? "HELL" : "HEAVEN" }; }) : []
     };
   }
 
@@ -153,6 +154,8 @@
   var ready = (typeof fetch === "function" && typeof location !== "undefined" && (/^https?:$/.test(location.protocol) || window.CELESTAI_API_BASE))
     ? fetchJson("/api/health", { cache: "no-store" }, 2000).then(function (d) { available = !!(d && d.ai === true); return available; })
     : Promise.resolve(false);
+  // Warm the queue while the player is still in the menu so the first soul is AI-written too
+  ready.then(function (ok) { if (ok) prefetch({}); });
 
   window.aiSouls = {
     isAvailable: function () { return available; },

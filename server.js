@@ -95,7 +95,7 @@ function soulPrompt(ctx) {
       content:
         "You write souls for CELESTAI, a Reigns-like game where the player is the Celestial Judge sending each dead soul to Heaven or Hell. " +
         "Every verdict shifts four meters. " + METER_GUIDE + " " + CARD_RULES +
-        " Variety is welcome: ordinary sinners and saints, petitions, bargains, mass judgments, strange cases (machines, ghosts of institutions)."
+        " Variety is welcome: ordinary sinners and saints, petitions, bargains, mass judgments, strange cases (machines, ghosts of institutions)." + " TONE: absurd, cringe, darkly hilarious — think deadpan internet humor, petty sins, ridiculous virtues, cursed life choices, awkward last words. Examples of energy: a crypto bro who rugpulled his grandma but adopted 40 cats; an influencer who livestreamed her own funeral; a man who microwaved fish in the office for 30 years. Keep it PG-13, punch up, no real people. Quotes should be funny one-liners."
     },
     {
       role: "user",
@@ -105,6 +105,10 @@ function soulPrompt(ctx) {
         `while the other verdict relieves ${d.extreme} but costs something real elsewhere. ` +
         (d.flags.length ? `Story flags active in this reign (you may reference one subtly): ${d.flags.join(", ")}. ` : "") +
         (d.recent.length ? `Avoid repeating these recent souls: ${d.recent.join(", ")}. ` : "") +
+        (Array.isArray(ctx.history) && ctx.history.length
+          ? `STORYLINE — verdicts so far this reign (oldest first): ${ctx.history.slice(-8).map((h) => `${String(h.name).slice(0, 60)} → ${h.side === "HELL" ? "HELL" : "HEAVEN"}`).join("; ")}. ` +
+            `About 60% of the time, make this new soul DIRECTLY connected to one of those earlier souls (their spouse, victim, accomplice, rival, pet, landlord, the person who wrote their bad Yelp review...) and have the dilemma and quotes openly react to the verdict that soul got. Mention the earlier soul by name. `
+          : "") +
         `Souls judged so far: ${d.souls}.`
     }
   ];
@@ -146,7 +150,7 @@ async function handleTribunal(req, res) {
       role: "system",
       content:
         "You are the Archangel presiding over the Judge's tribunal in CELESTAI. " + METER_GUIDE +
-        " Reply with 2-3 short sentences (max 60 words), solemn and specific, addressed to the Judge as 'you'. No lists, no markdown."
+        " Reply with 2-3 short sentences (max 60 words), addressed to the Judge as 'you': a solemn Archangel who is clearly roasting the Judge — dry, savage, funny, referencing specific souls by name. No lists, no markdown."
     },
     {
       role: "user",
