@@ -105,11 +105,11 @@ class CharacterFactory {
     // Eyebrows
     const browGeo = new THREE.BoxGeometry(0.2, 0.05, 0.06);
     const leftBrow = new THREE.Mesh(browGeo, this.sharedMaterials.black);
-    leftBrow.position.set(-0.18, 0.22, 0.37);
+    leftBrow.position.set(-0.17, 0.2, 0.38);
     headGroup.add(leftBrow);
 
     const rightBrow = new THREE.Mesh(browGeo, this.sharedMaterials.black);
-    rightBrow.position.set(0.18, 0.22, 0.37);
+    rightBrow.position.set(0.17, 0.2, 0.38);
     headGroup.add(rightBrow);
 
     // Stylized Simple Mouth
@@ -754,31 +754,34 @@ class CharacterFactory {
     // Defined authoritative eyebrows
     const browGeo = new THREE.BoxGeometry(0.2, 0.06, 0.06);
     const leftBrow = new THREE.Mesh(browGeo, this.sharedMaterials.black);
-    leftBrow.position.set(-0.18, 0.22, 0.37);
+    leftBrow.position.set(-0.17, 0.2, 0.38);
     headGroup.add(leftBrow);
 
     const rightBrow = new THREE.Mesh(browGeo, this.sharedMaterials.black);
-    rightBrow.position.set(0.18, 0.22, 0.37);
+    rightBrow.position.set(0.17, 0.2, 0.38);
     headGroup.add(rightBrow);
 
     // Serene glowing celestial eyes
-    const eyeGeo = new THREE.BoxGeometry(0.14, 0.16, 0.08);
-    const leftEye = new THREE.Mesh(eyeGeo, glowGoldMat);
-    leftEye.position.set(-0.18, 0.08, 0.36);
-    headGroup.add(leftEye);
-
-    const rightEye = new THREE.Mesh(eyeGeo, glowGoldMat);
-    rightEye.position.set(0.18, 0.08, 0.36);
-    headGroup.add(rightEye);
+    // Eyes: white sclera + dark pupil so the face reads clearly on skin
+    const eyeGeo = new THREE.BoxGeometry(0.16, 0.14, 0.06);
+    const pupilGeo = new THREE.BoxGeometry(0.08, 0.1, 0.04);
+    [-0.17, 0.17].forEach((x) => {
+      const eye = new THREE.Mesh(eyeGeo, this.sharedMaterials.white || new THREE.MeshStandardMaterial({ color: 0xffffff, flatShading: true }));
+      eye.position.set(x, 0.06, 0.37);
+      headGroup.add(eye);
+      const pupil = new THREE.Mesh(pupilGeo, this.sharedMaterials.black);
+      pupil.position.set(x, 0.05, 0.4);
+      headGroup.add(pupil);
+    });
 
     // Calm authoritative mouth
-    const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 0.04), this.sharedMaterials.crimson);
-    mouth.position.set(0, -0.18, 0.36);
+    const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.05, 0.04), this.sharedMaterials.crimson);
+    mouth.position.set(0, -0.19, 0.37);
     headGroup.add(mouth);
 
     // Judge's Hood / Headdress
-    const cowl = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.34, 0.82), obsidianMat);
-    cowl.position.set(0, 0.36, -0.02);
+    const cowl = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.22, 0.82), obsidianMat);
+    cowl.position.set(0, 0.47, -0.02);
     headGroup.add(cowl);
 
     // Floating Celestial Halo
