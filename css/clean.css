@@ -55,3 +55,14 @@
   background: linear-gradient(180deg, #fbf6ea 0%, #e9dfc8 100%) !important; color: #2a2112 !important; border: none !important;
   box-shadow: 0 6px 0 #b8923e, 0 14px 30px rgba(0,0,0,0.45) !important; border-radius: 16px !important; }
 .results-actions #results-btn-replay:active { transform: translateY(3px); box-shadow: 0 3px 0 #b8923e, 0 8px 18px rgba(0,0,0,0.45) !important; }
+
+/* Verdict toast: compact, tucked in the top-left corner so the soul's face stays visible */
+#verdict-modal:not(.dying) { justify-content: flex-start !important; padding: 78px 0 0 10px !important; }
+#verdict-modal:not(.dying) .verdict-tablet { transform: none !important; max-width: 46% !important; width: auto !important;
+  padding: 8px 10px !important; text-align: left !important; animation: verdict-slide 0.25s ease-out; }
+#verdict-modal:not(.dying) #verdict-reasoning,
+#verdict-modal:not(.dying) #verdict-note { display: none !important; }
+#verdict-modal:not(.dying) #verdict-badge { font-size: 9px !important; padding: 3px 8px !important; margin: 0 0 4px !important; }
+#verdict-modal:not(.dying) .verdict-tablet * { justify-content: flex-start !important; }
+#verdict-modal:not(.dying) #verdict-quote { font-size: 11px !important; margin-top: 4px !important; }
+@keyframes verdict-slide { from { transform: translateX(-110%); } to { transform: translateX(0); } }
