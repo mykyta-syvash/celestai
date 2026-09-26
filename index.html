@@ -198,13 +198,29 @@
       <!-- Unobstructed 3D Soul Character Viewport Spacer -->
       <div class="soul-court-spacer" aria-hidden="true"></div>
 
-      <!-- The Judgment Tablet: Compact Divine Slate -->
-      <div id="story-card" class="compact-soul-tablet">
+      <!-- The Judgment Card: swipe LEFT for Heaven, RIGHT for Hell (js/swipe.js) -->
+      <div id="story-card" class="compact-soul-tablet swipe-card" aria-live="polite">
         <div class="tablet-frame-runes" aria-hidden="true">
           <span class="rune-corner top-left">✧</span>
           <span class="rune-corner top-right">✧</span>
         </div>
-        <div class="soul-identity-header">
+        <!-- Drag edge labels (opacity driven by swipe.js) -->
+        <div class="swipe-label swipe-label-heaven" aria-hidden="true">HEAVEN</div>
+        <div class="swipe-label swipe-label-hell" aria-hidden="true">HELL</div>
+
+        <!-- 1. The dilemma: first & largest -->
+        <p id="story-dilemma" class="soul-dilemma-sentence swipe-dilemma">
+          "Weighing earthly deeds against celestial balance..."
+        </p>
+
+        <!-- 2. Virtue / sin: compact one-line chips -->
+        <div class="swipe-chips">
+          <span class="swipe-chip swipe-chip-virtue" title="Virtue"><span class="swipe-chip-icon" aria-hidden="true">✦</span><span id="story-virtue" class="swipe-chip-text">Calculating merits...</span></span>
+          <span class="swipe-chip swipe-chip-sin" title="Sin"><span class="swipe-chip-icon" aria-hidden="true">✖</span><span id="story-sin" class="swipe-chip-text">Calculating burdens...</span></span>
+        </div>
+
+        <!-- 3. Identity badge: compact -->
+        <div class="soul-identity-header swipe-identity">
           <h2 id="soul-name" class="soul-identity-name">LOADING SOUL...</h2>
           <div class="soul-identity-sub">
             <span id="soul-title" class="soul-sub-title">COURT SUBJECT</span>
@@ -212,16 +228,14 @@
             <span id="soul-age" class="soul-sub-age">AGE 0</span>
           </div>
         </div>
-        <div class="soul-tablet-line"></div>
-        <div id="story-dilemma" class="soul-dilemma-sentence">
-          "Weighing earthly deeds against celestial balance..."
-        </div>
-        <!-- Hidden accessibility & backwards-compatibility hooks for perks/abilities -->
+
+        <!-- First-run gesture hint (hidden after first swipe; localStorage celestai_swiped) -->
+        <div id="swipe-hint" class="swipe-hint" hidden>← HEAVEN · swipe · HELL →</div>
+
+        <!-- Hidden backwards-compatibility hooks for perks/abilities -->
         <div class="sr-only" aria-hidden="true">
           <span id="stat-highscore">0</span>
           <span id="soul-archetype">UNKNOWN</span>
-          <span id="story-virtue">Calculating merits...</span>
-          <span id="story-sin">Calculating burdens...</span>
         </div>
       </div>
 
@@ -231,7 +245,7 @@
       </div>
 
       <!-- Monumental 3D Physical Judgment Altars -->
-      <div id="actions-container" class="judgment-altars-row">
+      <div id="actions-container" class="judgment-altars-row swipe-altars-compact">
         <!-- HEAVEN ALTAR PEDESTAL -->
         <button id="btn-heaven" class="altar-button altar-heaven" type="button" aria-label="Send to Heaven">
           <div class="altar-pedestal-bevel"></div>

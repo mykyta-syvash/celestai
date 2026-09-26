@@ -82,8 +82,9 @@ Rescue order when a verdict would be fatal: Ward → Second Chance → Forgivene
 
 | Action | Touch / Mouse | Keyboard |
 | :--- | :--- | :--- |
-| **Send to Heaven** | Tap **HEAVEN** button | `[A]` or `[Left Arrow]` |
-| **Send to Hell** | Tap **HELL** button | `[D]` or `[Right Arrow]` |
+| **Send to Heaven** | Swipe the soul card **left**, or tap **HEAVEN** | `[A]` or `[Left Arrow]` |
+| **Send to Hell** | Swipe the soul card **right**, or tap **HELL** | `[D]` or `[Right Arrow]` |
+| **Preview a verdict** | Drag the card part-way (meters it affects light up); release early to cancel | — |
 | **Skip Verdict Wait** | Tap modal | `[Space]` or Click |
 | **Toggle Sound** | Tap **🔊** / **🔇** | Top-right button |
 
