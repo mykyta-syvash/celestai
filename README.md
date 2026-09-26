@@ -121,8 +121,8 @@ Earn **+1 XP** for every correct judgment. XP is permanent, persists in `localSt
 ## 🚀 Running the Game
 
 ```bash
-cd /Users/nikita/.gemini/antigravity/scratch/celestial-judgment
-python3 -m http.server 8090
+# from the repo root
+npm start            # or: python3 -m http.server 8090
 ```
 
 Open:
