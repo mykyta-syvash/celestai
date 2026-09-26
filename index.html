@@ -131,17 +131,13 @@
 
         <div class="pre-run-card">
           <div class="pre-run-stat">
-            <span class="stat-label">STARTING LIVES</span>
-            <div id="pre-run-lives" class="lives-container hearts-large">
-              <span class="heart active">♥</span>
-              <span class="heart active">♥</span>
-              <span class="heart active">♥</span>
-            </div>
+            <span class="stat-label">THE BALANCE OF HEAVEN</span>
+            <div id="pre-run-meters" class="pre-run-meters"></div>
           </div>
 
           <div class="pre-run-stat">
-            <span class="stat-label">CURRENT SCORE</span>
-            <span class="stat-value-large">0</span>
+            <span id="pre-run-reign-label" class="stat-label">YOUR REIGN</span>
+            <span id="pre-run-reign" class="stat-value-large">JUDGE #1</span>
           </div>
 
           <div id="pre-run-abilities-preview" class="abilities-preview-box">
@@ -166,41 +162,33 @@
 
       <!-- Top Celestial Tribunal HUD -->
       <header id="top-bar" class="celestial-hud">
-        <!-- Left Wing: Score & Streak -->
+        <!-- Left Wing: souls judged this reign, reign number, best -->
         <div class="hud-wing hud-left">
           <div class="hud-score-block">
-            <span class="hud-mini-label"><span class="hud-glyph">⚖</span> SCORE</span>
+            <span class="hud-mini-label"><span class="hud-glyph">⚖</span> SOULS</span>
             <span id="stat-score" class="hud-main-num">0</span>
           </div>
           <div class="hud-sub-stats">
-            <span id="stat-streak" class="streak-pill">🔥 0</span>
+            <span id="stat-reign" class="streak-pill reign-pill">JUDGE #1</span>
+            <span class="hud-best">BEST <span id="stat-best">0</span></span>
           </div>
         </div>
 
-        <!-- Center: Large Circular Countdown Timer -->
-        <div id="circular-timer-container" class="hud-center-timer">
-          <svg class="timer-svg" viewBox="0 0 88 88" aria-hidden="true">
-            <circle class="timer-ring-bg" cx="44" cy="44" r="36" />
-            <circle id="timer-ring-progress" class="timer-ring-progress" cx="44" cy="44" r="36" />
-          </svg>
-          <div class="timer-center-content">
-            <span id="timer-text" class="timer-number">5</span>
-            <span class="timer-unit">SEC</span>
-          </div>
-          <!-- Hidden fallback elements for app.js sync -->
-          <div id="timer-container" class="sr-only" aria-hidden="true">
-            <div id="timer-track"><div id="timer-bar"></div></div>
-          </div>
-        </div>
+        <!-- Center: the four celestial meters (Reigns-style fill bars) -->
+        <div id="meter-bar" class="meter-bar" aria-label="Celestial balance"></div>
 
-        <!-- Right Wing: Lives & Compact Audio Toggle -->
+        <!-- Right Wing: optional countdown (TIMED MODE only) & audio -->
         <div class="hud-wing hud-right">
-          <div class="hud-lives-block">
-            <span class="hud-mini-label">LIVES</span>
-            <div id="stat-lives" class="hud-lives-container">
-              <span class="hud-heart active">♥</span>
-              <span class="hud-heart active">♥</span>
-              <span class="hud-heart active">♥</span>
+          <div id="circular-timer-container" class="hud-center-timer compact timer-off">
+            <svg class="timer-svg" viewBox="0 0 88 88" aria-hidden="true">
+              <circle class="timer-ring-bg" cx="44" cy="44" r="36" />
+              <circle id="timer-ring-progress" class="timer-ring-progress" cx="44" cy="44" r="36" />
+            </svg>
+            <div class="timer-center-content">
+              <span id="timer-text" class="timer-number">8</span>
+            </div>
+            <div id="timer-container" class="sr-only" aria-hidden="true">
+              <div id="timer-track"><div id="timer-bar"></div></div>
             </div>
           </div>
           <button id="btn-audio" class="hud-audio-btn" type="button" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
@@ -274,11 +262,13 @@
       <!-- AI Verdict & Moral Evaluation Modal -->
       <div id="verdict-modal" role="dialog" aria-modal="true">
         <div class="modal-content verdict-tablet">
-          <div id="verdict-badge" class="badge-correct">CORRECT JUDGMENT +1</div>
-          <div id="verdict-score" class="verdict-score">STRONG JUDGMENT (82/100)</div>
-          <div id="verdict-reasoning" class="verdict-reasoning">"You prioritized the lives saved, despite the deliberate harm."</div>
-          <div id="verdict-quote" class="verdict-quote">"May she live in peace..."</div>
-          <div class="tap-hint">Tap anywhere to summon next soul</div>
+          <div id="verdict-badge" class="badge-heaven">ASCENDED</div>
+          <div id="verdict-score" class="verdict-score">THE SOUL IS JUDGED</div>
+          <div id="verdict-deltas" class="verdict-deltas"></div>
+          <div id="verdict-note" class="verdict-note hidden"></div>
+          <div id="verdict-reasoning" class="verdict-reasoning"></div>
+          <div id="verdict-quote" class="verdict-quote"></div>
+          <div id="verdict-tap-hint" class="tap-hint">Tap anywhere to summon next soul</div>
         </div>
       </div>
     </div>
@@ -289,6 +279,7 @@
     <div id="angel-screen" class="angel-overlay">
       <div class="angel-dialog-box">
         <div class="angel-badge">✦ THE ARCHANGEL'S TRIBUNAL ✦</div>
+        <div id="angel-ending-title" class="angel-ending-title hidden"></div>
         
         <div id="angel-dialogue-content" class="angel-dialogue-text">
           <!-- Populated sequentially by app.js -->
@@ -309,22 +300,24 @@
     <div id="screen-run-results" class="game-screen">
       <div class="results-container">
         <div class="results-header">
-          <div class="results-title">JUDGMENT COMPLETE</div>
-          <div id="results-highscore-tag" class="banner-tag gold hidden">★ NEW HIGH SCORE! ★</div>
+          <div id="results-title" class="results-title">JUDGMENT COMPLETE</div>
+          <div id="results-cause" class="results-cause"></div>
+          <div id="results-meters" class="results-meters"></div>
+          <div id="results-highscore-tag" class="banner-tag gold hidden">★ LONGEST REIGN! ★</div>
           <div id="results-levelup-tag" class="banner-tag emerald hidden">★ LEVEL UP! ★</div>
         </div>
 
         <div class="results-grid">
           <div class="results-card-item">
-            <span class="item-label">RUN SCORE</span>
+            <span class="item-label">REIGN LENGTH</span>
             <span id="results-score" class="item-val highlight">0</span>
           </div>
           <div class="results-card-item">
-            <span class="item-label">HIGH SCORE</span>
+            <span class="item-label">LONGEST REIGN</span>
             <span id="results-highscore" class="item-val">0</span>
           </div>
           <div class="results-card-item">
-            <span class="item-label">SOULS JUDGED</span>
+            <span class="item-label">SOULS SUMMONED</span>
             <span id="results-judged" class="item-val">0</span>
           </div>
           <div class="results-card-item">
@@ -456,6 +449,10 @@
           <div class="settings-item">
             <span class="settings-label">MUSIC & DRONES</span>
             <button id="setting-toggle-music" class="btn-toggle active" type="button">ENABLED</button>
+          </div>
+          <div class="settings-item">
+            <span class="settings-label">TIMED MODE (8s / SOUL)</span>
+            <button id="setting-toggle-timed" class="btn-toggle" type="button">OFF</button>
           </div>
           <div class="settings-item danger">
             <span class="settings-label">RESET SAVE DATA</span>

@@ -1,1 +1,194 @@
 /* CELESTAI meters HUD + verdict deltas. OWNER: meters/core-loop agent. */
+
+/* ---------- Top HUD layout tweaks ---------- */
+.celestial-hud .hud-left { min-width: 0; }
+.hud-best {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+}
+.reign-pill { color: var(--gold-light, #ffe8a3); text-shadow: 0 0 8px rgba(255, 215, 0, 0.45); }
+
+.celestial-hud .hud-center-timer.compact { width: 56px; height: 56px; }
+.celestial-hud .hud-center-timer.compact .timer-number { font-size: 19px; }
+.celestial-hud .hud-center-timer.timer-off { display: none; }
+
+/* ---------- Reigns-style meter bar ---------- */
+.meter-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 12px 4px;
+  background: linear-gradient(160deg, #181d2a 0%, #10131e 100%);
+  border: 1px solid var(--panel-border, rgba(255, 215, 0, 0.3));
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.meter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 38px;
+}
+
+.meter-glyph {
+  position: relative;
+  width: 30px;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.meter-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 50%;
+  background: linear-gradient(180deg, #ffe8a3 0%, #d4a017 100%);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.55);
+  transition: height 0.55s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s;
+}
+
+.meter-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
+}
+
+.meter-label {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.meter.danger .meter-fill {
+  background: linear-gradient(180deg, #ff8a8a 0%, #c81e3a 100%);
+  box-shadow: 0 0 12px rgba(255, 59, 92, 0.7);
+}
+.meter.danger .meter-glyph { animation: meterDanger 1s ease-in-out infinite; }
+
+@keyframes meterDanger {
+  0%, 100% { border-color: rgba(255, 59, 92, 0.4); }
+  50% { border-color: rgba(255, 59, 92, 1); box-shadow: 0 0 10px rgba(255, 59, 92, 0.7); }
+}
+
+.meter.pulse-up .meter-glyph { animation: meterUp 0.6s ease-out; }
+.meter.pulse-down .meter-glyph { animation: meterDown 0.6s ease-out; }
+@keyframes meterUp { 0% { transform: scale(1); } 40% { transform: scale(1.18); box-shadow: 0 0 14px #4ade80; } 100% { transform: scale(1); } }
+@keyframes meterDown { 0% { transform: scale(1); } 40% { transform: scale(0.86); box-shadow: 0 0 14px #ff3b5c; } 100% { transform: scale(1); } }
+
+/* Preview dot (size only by default; skills may reveal direction / number) */
+.meter-dot {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+  transition: transform 0.15s ease-out;
+  pointer-events: none;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  color: #0d1017;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.meter-dot.small { transform: translateX(-50%) scale(0.7); }
+.meter-dot.big { transform: translateX(-50%) scale(1.25); }
+.meter-dot.revealed { width: auto; min-width: 12px; height: 12px; padding: 0 3px; border-radius: 6px; top: -11px; }
+.meter-dot.revealed.big, .meter-dot.revealed.small { transform: translateX(-50%) scale(1); }
+.meter-dot.revealed.up { background: #4ade80; }
+.meter-dot.revealed.down { background: #ff6b81; }
+
+/* ---------- Pre-run meters preview ---------- */
+.pre-run-meters { display: flex; gap: 10px; justify-content: center; }
+.pre-run-meter { display: flex; flex-direction: column; align-items: center; font-size: 20px; }
+.pre-run-meter small { font-size: 8px; letter-spacing: 1px; font-weight: 800; color: rgba(255, 255, 255, 0.6); }
+
+/* ---------- Verdict modal ---------- */
+.badge-heaven, .badge-hell {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+.badge-heaven { background: rgba(255, 232, 163, 0.16); border: 1px solid #ffe8a3; color: #ffe8a3; }
+.badge-hell { background: rgba(255, 110, 60, 0.16); border: 1px solid #ff7a45; color: #ff9a6b; }
+
+.verdict-deltas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 2px 0 8px;
+}
+.delta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.delta-chip.up { border-color: #4ade80; color: #4ade80; }
+.delta-chip.down { border-color: #ff6b81; color: #ff6b81; }
+.delta-chip.cancelled { text-decoration: line-through; opacity: 0.55; }
+.delta-chip.fatal { background: rgba(255, 59, 92, 0.3); border-color: #ff3b5c; color: #fff; animation: meterDanger 0.8s infinite; }
+.delta-chip.saved { border-color: #7dd3fc; color: #7dd3fc; }
+.verdict-note { font-size: 10px; letter-spacing: 1px; font-weight: 800; color: #7dd3fc; margin-bottom: 6px; }
+
+/* ---------- Tribunal / results ---------- */
+.angel-ending-title {
+  font-family: var(--font-display, serif);
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: #ff9a9a;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.results-cause {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ff9a9a;
+  margin: 6px 0 2px;
+}
+.results-meters { display: flex; gap: 12px; justify-content: center; margin: 4px 0 8px; font-size: 13px; font-weight: 800; color: #fff; }
+.results-meters .dead { color: #ff6b81; }
+
+@media (max-width: 420px) {
+  .meter-bar { gap: 5px; padding: 6px 6px 4px; }
+  .meter { width: 32px; }
+  .meter-glyph { width: 26px; height: 32px; }
+  .meter-icon { font-size: 15px; }
+  .celestial-hud .hud-wing { padding: 6px 8px; }
+}
