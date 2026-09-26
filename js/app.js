@@ -866,7 +866,7 @@ class CelestialGame {
     this.setButtonsDisabled(true);
     this.environment.resetEffects();
     this.renderer.resetLighting();
-    this.hideVerdictModal();
+    // verdict toast stays up on its own timer (non-blocking)
     this.previewDecision(null);
     this.revealLevel = 0;
 
@@ -1232,8 +1232,9 @@ class CelestialGame {
     this.dom.verdictReasoning.textContent = ev.feedback ? `"${ev.feedback}"` : "";
     this.dom.verdictQuote.textContent = ev.quote ? `"${ev.quote}"` : "";
     const tapHint = document.getElementById("verdict-tap-hint");
-    if (tapHint) tapHint.textContent = dying ? "Tap to face the Archangel" : "Tap anywhere to summon next soul";
+    if (tapHint) tapHint.textContent = dying ? "Tap to face the Archangel" : "";
 
+    this.dom.verdictModal.classList.toggle("dying", !!dying);
     this.dom.verdictModal.classList.add("visible");
 
     let advanced = false;
@@ -1252,8 +1253,15 @@ class CelestialGame {
     };
 
     if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
-    this.verdictTimeout = setTimeout(advance, dying ? 1500 : 650);
-    this.dom.verdictModal.onclick = advance;
+    if (this.verdictToastTimer) clearTimeout(this.verdictToastTimer);
+    if (dying) {
+      this.verdictTimeout = setTimeout(advance, 1500);
+      this.dom.verdictModal.onclick = advance;
+    } else {
+      // Non-blocking: next soul immediately, verdict shows as a toast that fades by itself
+      this.verdictToastTimer = setTimeout(() => this.hideVerdictModal(), 1800);
+      advance();
+    }
   }
 
   hideVerdictModal() {
