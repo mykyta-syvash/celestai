@@ -263,39 +263,194 @@ class CelestialEnvironment {
     root.add(hellGroup);
 
     // ==========================================
-    // 4B. DISTANT HEAVEN & HELL STRUCTURES (Contrast Background)
+    // 4B. COMPREHENSIVE HEAVEN REALM (Left Background & Flank)
     // ==========================================
-    // Left: Floating Distant Celestial Temples (Heaven)
     const heavenDistant = new THREE.Group();
-    heavenDistant.position.set(-6.2, 2.0, -5.5);
-    const hTempleBase = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 0.3, 6), lightStoneMat);
-    heavenDistant.add(hTempleBase);
-    const hTempleDome = new THREE.Mesh(new THREE.ConeGeometry(1.1, 1.5, 6), goldMat);
-    hTempleDome.position.y = 1.0;
-    heavenDistant.add(hTempleDome);
-    const hFloatingMonolith = new THREE.Mesh(new THREE.BoxGeometry(0.35, 2.2, 0.35), lightStoneMat);
-    hFloatingMonolith.position.set(1.4, 1.2, 1.0);
-    hFloatingMonolith.rotation.y = 0.4;
-    heavenDistant.add(hFloatingMonolith);
+    heavenDistant.position.set(-6.5, 1.8, -5.2);
+
+    // Custom realm materials
+    const crystalWaterMat = new THREE.MeshStandardMaterial({
+      color: 0x8ce8f5,
+      transparent: true,
+      opacity: 0.75,
+      roughness: 0.2,
+      flatShading: true
+    });
+    const angelMat = new THREE.MeshStandardMaterial({
+      color: 0xfbf7ed,
+      roughness: 0.5,
+      flatShading: true
+    });
+    const darkSmokeMat = new THREE.MeshStandardMaterial({
+      color: 0x1a161f,
+      roughness: 0.95,
+      transparent: true,
+      opacity: 0.65,
+      flatShading: true
+    });
+
+    // 1. Main Floating Celestial Island
+    const hIslandGeo = new THREE.CylinderGeometry(2.4, 0.4, 2.2, 7);
+    const hIsland = new THREE.Mesh(hIslandGeo, lightStoneMat);
+    hIsland.position.y = -0.3;
+    heavenDistant.add(hIsland);
+
+    // Upper marble terrace & gold rim
+    const hTerrace = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.3, 0.25, 7), lightStoneMat);
+    hTerrace.position.y = 0.85;
+    heavenDistant.add(hTerrace);
+
+    const hGoldRim = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.08, 5, 7), goldMat);
+    hGoldRim.rotation.x = Math.PI / 2;
+    hGoldRim.position.y = 0.98;
+    heavenDistant.add(hGoldRim);
+
+    // 2. Celestial Temple Towers (White & Gold Spire)
+    const hTowerBase = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 1.8, 6), lightStoneMat);
+    hTowerBase.position.set(-0.8, 1.8, -0.4);
+    heavenDistant.add(hTowerBase);
+
+    const hTowerSpire = new THREE.Mesh(new THREE.ConeGeometry(0.65, 2.2, 6), goldMat);
+    hTowerSpire.position.set(-0.8, 3.8, -0.4);
+    heavenDistant.add(hTowerSpire);
+
+    const hTowerSmall = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.5, 1.2, 6), lightStoneMat);
+    hTowerSmall.position.set(0.9, 1.5, 0.3);
+    heavenDistant.add(hTowerSmall);
+
+    const hTowerSmallSpire = new THREE.Mesh(new THREE.ConeGeometry(0.38, 1.5, 6), goldMat);
+    hTowerSmallSpire.position.set(0.9, 2.85, 0.3);
+    heavenDistant.add(hTowerSmallSpire);
+
+    // 3. Glowing Celestial Gate Arch
+    const hGatePillarL = new THREE.Mesh(new THREE.BoxGeometry(0.24, 2.2, 0.24), lightStoneMat);
+    hGatePillarL.position.set(-0.1, 2.0, 0.6);
+    heavenDistant.add(hGatePillarL);
+
+    const hGatePillarR = new THREE.Mesh(new THREE.BoxGeometry(0.24, 2.2, 0.24), lightStoneMat);
+    hGatePillarR.position.set(0.7, 2.0, 0.6);
+    heavenDistant.add(hGatePillarR);
+
+    const hGateArch = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.25, 0.26), goldMat);
+    hGateArch.position.set(0.3, 3.15, 0.6);
+    heavenDistant.add(hGateArch);
+
+    const hGateSunburst = new THREE.Mesh(new THREE.CircleGeometry(0.45, 8), new THREE.MeshBasicMaterial({ color: 0xfff6cf, side: THREE.DoubleSide }));
+    hGateSunburst.position.set(0.3, 2.5, 0.58);
+    heavenDistant.add(hGateSunburst);
+
+    // 4. Cascading Low-Poly Celestial Waterfall
+    const waterfallTiers = [];
+    const wfGeo1 = new THREE.BoxGeometry(0.65, 0.8, 0.1);
+    const wf1 = new THREE.Mesh(wfGeo1, crystalWaterMat);
+    wf1.position.set(-1.4, 0.2, 0.7);
+    wf1.rotation.x = 0.2;
+    heavenDistant.add(wf1);
+    waterfallTiers.push(wf1);
+
+    const wfGeo2 = new THREE.BoxGeometry(0.5, 0.9, 0.08);
+    const wf2 = new THREE.Mesh(wfGeo2, crystalWaterMat);
+    wf2.position.set(-1.4, -0.6, 0.9);
+    wf2.rotation.x = -0.15;
+    heavenDistant.add(wf2);
+    waterfallTiers.push(wf2);
+
+    // 5. Stylized Low-Poly Angelic Statue
+    const angelStatue = new THREE.Group();
+    angelStatue.position.set(1.4, 1.0, 0.7);
+    const aBody = new THREE.Mesh(new THREE.ConeGeometry(0.28, 1.2, 5), angelMat);
+    aBody.position.y = 0.6;
+    angelStatue.add(aBody);
+    const aHead = new THREE.Mesh(new THREE.DodecahedronGeometry(0.14, 0), angelMat);
+    aHead.position.y = 1.25;
+    angelStatue.add(aHead);
+    const aHalo = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.03, 4, 8), goldMat);
+    aHalo.rotation.x = Math.PI / 2;
+    aHalo.position.y = 1.45;
+    angelStatue.add(aHalo);
+    const aWingL = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.8, 4), goldMat);
+    aWingL.position.set(-0.25, 0.8, -0.1);
+    aWingL.rotation.z = 0.6;
+    angelStatue.add(aWingL);
+    const aWingR = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.8, 4), goldMat);
+    aWingR.position.set(0.25, 0.8, -0.1);
+    aWingR.rotation.z = -0.6;
+    angelStatue.add(aWingR);
+    heavenDistant.add(angelStatue);
+
     root.add(heavenDistant);
     this.heavenDistant = heavenDistant;
+    this.waterfallTiers = waterfallTiers;
 
-    // Right: Floating Distant Volcanic Spire Crags (Hell)
+    // ==========================================
+    // 4C. COMPREHENSIVE HELL REALM (Right Background & Flank)
+    // ==========================================
     const hellDistant = new THREE.Group();
-    hellDistant.position.set(6.2, 1.6, -5.5);
-    const hSpire1 = new THREE.Mesh(new THREE.ConeGeometry(0.7, 3.8, 5), obsidianMat);
-    hSpire1.position.y = 1.6;
-    hSpire1.rotation.z = 0.12;
-    hellDistant.add(hSpire1);
-    const hSpire2 = new THREE.Mesh(new THREE.ConeGeometry(0.5, 2.6, 5), obsidianMat);
-    hSpire2.position.set(-1.2, 1.0, 0.8);
-    hSpire2.rotation.z = -0.18;
-    hellDistant.add(hSpire2);
-    const hEmberCore = new THREE.Mesh(new THREE.DodecahedronGeometry(0.3, 0), lavaMat);
-    hEmberCore.position.set(0, 0.6, 0.3);
-    hellDistant.add(hEmberCore);
+    hellDistant.position.set(6.5, 1.5, -5.2);
+
+    // 1. Main Jagged Volcanic Crag Island
+    const hlIslandGeo = new THREE.CylinderGeometry(2.3, 0.3, 2.4, 6);
+    const hlIsland = new THREE.Mesh(hlIslandGeo, obsidianMat);
+    hlIsland.position.y = -0.4;
+    hellDistant.add(hlIsland);
+
+    // Volcanic basalt terrace & molten cracks
+    const hlTerrace = new THREE.Mesh(new THREE.CylinderGeometry(2.1, 2.3, 0.25, 6), obsidianMat);
+    hlTerrace.position.y = 0.8;
+    hellDistant.add(hlTerrace);
+
+    const hlLavaPool = new THREE.Mesh(new THREE.CircleGeometry(1.2, 7), lavaMat);
+    hlLavaPool.rotation.x = -Math.PI / 2;
+    hlLavaPool.position.y = 0.94;
+    hellDistant.add(hlLavaPool);
+
+    // 2. Gothic Infernal Needle Spire Towers
+    const hlSpire1 = new THREE.Mesh(new THREE.ConeGeometry(0.65, 3.6, 5), obsidianMat);
+    hlSpire1.position.set(0.8, 2.5, -0.4);
+    hlSpire1.rotation.z = -0.08;
+    hellDistant.add(hlSpire1);
+
+    const hlSpire1Cap = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.2, 5), lavaMat);
+    hlSpire1Cap.position.set(0.8, 4.4, -0.4);
+    hellDistant.add(hlSpire1Cap);
+
+    const hlSpire2 = new THREE.Mesh(new THREE.ConeGeometry(0.48, 2.4, 5), obsidianMat);
+    hlSpire2.position.set(-0.9, 1.8, 0.3);
+    hlSpire2.rotation.z = 0.12;
+    hellDistant.add(hlSpire2);
+
+    // 3. Infernal Horned Gate Arch
+    const hlHornL = new THREE.Mesh(new THREE.ConeGeometry(0.25, 2.6, 5), obsidianMat);
+    hlHornL.position.set(-0.5, 2.0, 0.6);
+    hlHornL.rotation.z = -0.25;
+    hellDistant.add(hlHornL);
+
+    const hlHornR = new THREE.Mesh(new THREE.ConeGeometry(0.25, 2.6, 5), obsidianMat);
+    hlHornR.position.set(0.4, 2.0, 0.6);
+    hlHornR.rotation.z = 0.25;
+    hellDistant.add(hlHornR);
+
+    const hlPortalRift = new THREE.Mesh(new THREE.CircleGeometry(0.4, 6), new THREE.MeshBasicMaterial({ color: 0xff2200, side: THREE.DoubleSide }));
+    hlPortalRift.position.set(-0.05, 2.2, 0.58);
+    hellDistant.add(hlPortalRift);
+
+    // 4. Low-Poly Dark Smoke Puffs
+    const smokePuffs = [];
+    const smGeo1 = new THREE.DodecahedronGeometry(0.35, 0);
+    const sm1 = new THREE.Mesh(smGeo1, darkSmokeMat);
+    sm1.position.set(-0.3, 1.4, 0.8);
+    hellDistant.add(sm1);
+    smokePuffs.push({ mesh: sm1, baseY: 1.4, speed: 0.8 });
+
+    const smGeo2 = new THREE.DodecahedronGeometry(0.28, 0);
+    const sm2 = new THREE.Mesh(smGeo2, darkSmokeMat);
+    sm2.position.set(0.3, 1.8, 0.5);
+    hellDistant.add(sm2);
+    smokePuffs.push({ mesh: sm2, baseY: 1.8, speed: 1.1 });
+
     root.add(hellDistant);
     this.hellDistant = hellDistant;
+    this.smokePuffs = smokePuffs;
 
     // ==========================================
     // 5. SCALES OF JUSTICE (Background centerpiece)
@@ -637,10 +792,23 @@ class CelestialEnvironment {
 
     // 4C. Gentle floating of distant background structures
     if (this.heavenDistant) {
-      this.heavenDistant.position.y = 2.0 + Math.sin(time * 0.5) * 0.08;
+      this.heavenDistant.position.y = 1.8 + Math.sin(time * 0.5) * 0.08;
     }
     if (this.hellDistant) {
-      this.hellDistant.position.y = 1.6 + Math.sin(time * 0.6 + 1.2) * 0.06;
+      this.hellDistant.position.y = 1.5 + Math.sin(time * 0.6 + 1.2) * 0.06;
+    }
+
+    // 4D. Waterfall ripple & dark smoke puff rise
+    if (this.waterfallTiers) {
+      this.waterfallTiers.forEach((wf, idx) => {
+        wf.scale.y = 1.0 + Math.sin(time * 3.5 + idx) * 0.08;
+      });
+    }
+    if (this.smokePuffs) {
+      this.smokePuffs.forEach((puff, idx) => {
+        puff.mesh.position.y = puff.baseY + Math.sin(time * puff.speed + idx) * 0.12;
+        puff.mesh.scale.setScalar(0.9 + Math.sin(time * 2.0 + idx) * 0.15);
+      });
     }
 
     // 5. Active Heaven particles update

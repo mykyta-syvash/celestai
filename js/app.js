@@ -617,18 +617,18 @@ class CelestialGame {
     // 2. Obtain pre-generated soul
     this.currentStory = window.storyDeck.nextStory(this.score);
 
-    // 3. Populate Dilemma Card
-    this.dom.soulName.textContent = this.currentStory.name;
-    this.dom.soulTitle.textContent = this.currentStory.title;
-    this.dom.soulAge.textContent = `Age ${this.currentStory.age}`;
-    this.dom.soulArchetype.textContent = this.currentStory.archetype.toUpperCase();
-    this.dom.storyVirtue.textContent = this.currentStory.virtue;
-    this.dom.storySin.textContent = this.currentStory.sin;
-    this.dom.storyDilemma.textContent = this.currentStory.dilemma;
+    // 3. Populate Soul Tablet
+    this.dom.soulName.textContent = this.currentStory.name.toUpperCase();
+    this.dom.soulTitle.textContent = this.currentStory.title.toUpperCase();
+    this.dom.soulAge.textContent = `AGE ${this.currentStory.age}`;
+    if (this.dom.soulArchetype) this.dom.soulArchetype.textContent = this.currentStory.archetype.toUpperCase();
+    if (this.dom.storyVirtue) this.dom.storyVirtue.textContent = this.currentStory.virtue;
+    if (this.dom.storySin) this.dom.storySin.textContent = this.currentStory.sin;
+    this.dom.storyDilemma.textContent = `"${this.currentStory.dilemma}"`;
 
-    // Reset button hints
-    this.dom.hintHeaven.textContent = "[A] or [←]";
-    this.dom.hintHell.textContent = "[D] or [→]";
+    // Reset button hints (clean, single key)
+    this.dom.hintHeaven.textContent = "[A]";
+    this.dom.hintHell.textContent = "[D]";
 
     // 4. Create procedural 3D soul
     this.currentSoul = window.characterFactory.createSoul(this.currentStory.archetype);
@@ -846,14 +846,14 @@ class CelestialGame {
       this.verdictTimeout = setTimeout(() => {
         this.hideVerdictModal();
         this.triggerAngelClimax();
-      }, 1600);
+      }, 1100);
       return;
     }
 
     if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
     this.verdictTimeout = setTimeout(() => {
       this.spawnNextSoul();
-    }, 1600);
+    }, 1050);
 
     this.dom.verdictModal.onclick = () => {
       if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
