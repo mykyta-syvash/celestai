@@ -107,7 +107,6 @@
     osc.start(t); vib.start(t); osc.stop(t + dur + 0.05); vib.stop(t + dur + 0.05);
   }
 
-  window.addEventListener("celestai:soul", (e) => babble(e.detail));
   window.addEventListener("celestai:verdict", (e) => {
     const side = e.detail && e.detail.side;
     if (side === "HELL") slide(420, 90, 0.7, "square");      // "noooooo"
