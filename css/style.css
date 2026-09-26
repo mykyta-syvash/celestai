@@ -2595,3 +2595,10 @@ html, body {
   line-height: 1.25;
 }
 
+
+/* Hidden screens must never catch clicks (children set pointer-events:auto, which
+   overrides the parent's none — invisible menu buttons were stealing HEAVEN taps). */
+.game-screen:not(.active),
+.game-screen:not(.active) * {
+  pointer-events: none !important;
+}
