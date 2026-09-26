@@ -12,7 +12,7 @@
 
   var METERS = ["mercy", "justice", "order", "faith"];
   var ARCHETYPES = ["doctor", "soldier", "businessman", "farmer", "thief", "artist", "scientist", "chef", "king", "astronaut"];
-  var QUEUE_MAX = 3;
+  var QUEUE_MAX = 6;
   var available = false;
   var queue = [];
   var inflight = 0;
@@ -127,14 +127,17 @@
   function prefetch(ctx) {
     try {
       if (!available || failures >= 3) return;
-      if (queue.length + inflight >= QUEUE_MAX) return;
-      inflight++;
-      post("/api/soul", safeCtx(ctx), 25000).then(function (data) {
-        inflight--;
-        var card = data && validate(data.card);
-        if (card) { failures = 0; if (queue.length < QUEUE_MAX) queue.push(card); }
-        else failures++;
-      }, function () { inflight--; failures++; });
+      // Fast 5s rounds eat souls quicker than one request produces them: fill the queue in parallel
+      var body = safeCtx(ctx);
+      while (queue.length + inflight < QUEUE_MAX) {
+        inflight++;
+        post("/api/soul", body, 25000).then(function (data) {
+          inflight--;
+          var card = data && validate(data.card);
+          if (card) { failures = 0; if (queue.length < QUEUE_MAX) queue.push(card); }
+          else failures++;
+        }, function () { inflight--; failures++; });
+      }
     } catch (e) { /* never throw */ }
   }
 

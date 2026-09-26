@@ -9,7 +9,7 @@
  * 6. Procedural 3D WebGL scene integration
  */
 
-const SOUL_TIMER_SECONDS = 8.0;
+const SOUL_TIMER_SECONDS = 5.0;
 const TIMEOUT_EFFECTS = { order: -10, faith: -6 };
 
 /** The 8 ways a reign can end (meter x low/high). */
@@ -575,14 +575,15 @@ class CelestialGame {
   // ==========================================
   loadTimedMode() {
     try {
-      return localStorage.getItem("celestai_timed") === "1";
+      // 5 seconds per soul is the core of the game — always timed
+      return true;
     } catch (e) {
       return false;
     }
   }
 
   setTimedMode(enabled) {
-    this.timedMode = !!enabled;
+    this.timedMode = true; // untimed mode removed: always 5s
     try {
       localStorage.setItem("celestai_timed", this.timedMode ? "1" : "0");
     } catch (e) { /* ignore */ }
@@ -592,7 +593,7 @@ class CelestialGame {
 
   refreshTimedToggle() {
     if (!this.dom.settingToggleTimed) return;
-    this.dom.settingToggleTimed.textContent = this.timedMode ? "ON (8s)" : "OFF";
+    this.dom.settingToggleTimed.textContent = this.timedMode ? "ON (5s)" : "OFF";
     this.dom.settingToggleTimed.classList.toggle("active", this.timedMode);
   }
 
@@ -1279,7 +1280,7 @@ class CelestialGame {
     };
 
     if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
-    this.verdictTimeout = setTimeout(advance, dying ? 3200 : 2400);
+    this.verdictTimeout = setTimeout(advance, dying ? 1500 : 650);
     this.dom.verdictModal.onclick = advance;
   }
 
