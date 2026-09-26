@@ -19,10 +19,10 @@ class SoundEngine {
     this.audioElements = {};
 
     this.soundPaths = {
-      menu: ["menu.mp3", "audio/menu.mp3"],
-      heaven: ["heaven.mp3", "audio/heaven.mp3"],
-      hell: ["hell.mp3", "audio/hell.mp3"],
-      final: ["final.mp3", "audio/final.mp3"]
+      menu: ["audio/menu.mp3"],
+      heaven: ["audio/heaven.mp3"],
+      hell: ["audio/hell.mp3"],
+      final: ["audio/final.mp3"]
     };
 
     // Track active music
