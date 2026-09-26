@@ -17,6 +17,7 @@ const PLAYER_LEVELS = [
 const SKILLS_DATA = {
   // ==========================================
   // JUSTICE BRANCH (Understanding souls & cases)
+  // NOTE: ids + costs are frozen (saved unlocks stay valid); effects follow the 4-meter model.
   // ==========================================
   true_sight: {
     id: "true_sight",
@@ -26,7 +27,7 @@ const SKILLS_DATA = {
     prerequisite: null,
     icon: "👁️",
     type: "active",
-    shortDesc: "Reveal one additional hidden truth about the current soul.",
+    shortDesc: "Reveal the hidden truth the current soul never confessed.",
     runCharges: 1
   },
   moral_clarity: {
@@ -37,7 +38,7 @@ const SKILLS_DATA = {
     prerequisite: "true_sight",
     icon: "⚖️",
     type: "active",
-    shortDesc: "Reveal a simplified moral breakdown of intent vs consequences.",
+    shortDesc: "Reveal intent vs consequences, and which way each verdict pushes every meter.",
     runCharges: 1
   },
   double_judgment: {
@@ -48,7 +49,7 @@ const SKILLS_DATA = {
     prerequisite: "moral_clarity",
     icon: "⚡",
     type: "active",
-    shortDesc: "Reveal how defensible both Heaven and Hell are before deciding.",
+    shortDesc: "Reveal the exact meter changes of BOTH verdicts before deciding.",
     runCharges: 1
   },
   final_word: {
@@ -58,8 +59,8 @@ const SKILLS_DATA = {
     cost: 100,
     prerequisite: "double_judgment",
     icon: "📜",
-    type: "passive",
-    shortDesc: "If AI rates your choice as DEBATABLE (40-69%), auto-accept as correct.",
+    type: "active",
+    shortDesc: "Arm before a verdict: every change pushing a meter toward its brink is cancelled.",
     runCharges: 1
   },
 
@@ -74,7 +75,7 @@ const SKILLS_DATA = {
     prerequisite: null,
     icon: "⏸️",
     type: "active",
-    shortDesc: "Freeze the countdown timer for 3 seconds.",
+    shortDesc: "Timed: freeze the countdown 3s. Untimed: ease your most extreme meter 10 toward balance.",
     runCharges: 1
   },
   time_dilation: {
@@ -85,7 +86,7 @@ const SKILLS_DATA = {
     prerequisite: "time_pause",
     icon: "⏳",
     type: "active",
-    shortDesc: "Extend the current countdown timer from 5s to 8s.",
+    shortDesc: "Timed: +3 seconds on the clock. Untimed: defer this soul unjudged (no meter changes).",
     runCharges: 1
   },
   second_chance: {
@@ -96,7 +97,7 @@ const SKILLS_DATA = {
     prerequisite: "time_dilation",
     icon: "🔄",
     type: "trigger",
-    shortDesc: "After a wrong judgment, choose Heaven or Hell again before losing a life.",
+    shortDesc: "When a verdict would end your reign, it is undone (meters restored) and you judge again.",
     runCharges: 1
   },
   absolute_judgment: {
@@ -107,7 +108,7 @@ const SKILLS_DATA = {
     prerequisite: "second_chance",
     icon: "👑",
     type: "active",
-    shortDesc: "Completely freeze time for 10 seconds with celestial stillness.",
+    shortDesc: "Timed: freeze time for 10s. Untimed: pull all four meters halfway back to balance.",
     runCharges: 1
   },
 
@@ -122,7 +123,7 @@ const SKILLS_DATA = {
     prerequisite: null,
     icon: "❤️",
     type: "permanent",
-    shortDesc: "Permanent: Start every run with 4 lives (♥ ♥ ♥ ♥) instead of 3.",
+    shortDesc: "Permanent ward: the first time each meter hits its brink in a reign, it stops at 6/94.",
     runCharges: 0
   },
   forgiveness: {
@@ -133,7 +134,7 @@ const SKILLS_DATA = {
     prerequisite: "extra_life",
     icon: "🕊️",
     type: "trigger",
-    shortDesc: "The first wrong judgment of your run is forgiven without losing a life.",
+    shortDesc: "The first meter collapse of your reign is forgiven: that meter returns to 50.",
     runCharges: 1
   },
   immortal_soul: {
@@ -144,7 +145,7 @@ const SKILLS_DATA = {
     prerequisite: "forgiveness",
     icon: "🛡️",
     type: "trigger",
-    shortDesc: "When you would lose your final life, prevent Game Over and continue with 1 life.",
+    shortDesc: "A second collapse is survived too: ALL four meters return to 50.",
     runCharges: 1
   },
   divine_intervention: {
@@ -155,7 +156,7 @@ const SKILLS_DATA = {
     prerequisite: "immortal_soul",
     icon: "✨",
     type: "trigger",
-    shortDesc: "When the timer reaches zero, grant +3 seconds instead of losing a life.",
+    shortDesc: "Timed: +3s instead of a hesitation penalty. Untimed: first meter to enter the danger zone is pulled back to 30/70.",
     runCharges: 1
   }
 };
@@ -209,6 +210,23 @@ class SkillTreeManager {
       oldLevel,
       newLevel
     };
+  }
+
+  /** Reign counter ("Judge #N"), persisted separately from progression. */
+  getReignNumber() {
+    try {
+      return parseInt(localStorage.getItem("celestai_reign") || "0", 10) || 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  nextReign() {
+    const n = this.getReignNumber() + 1;
+    try {
+      localStorage.setItem("celestai_reign", String(n));
+    } catch (e) { /* ignore */ }
+    return n;
   }
 
   recordRunStats(score, judged, streak) {
@@ -284,8 +302,9 @@ class SkillTreeManager {
     return true;
   }
 
-  getMaxLives() {
-    return this.isUnlocked("extra_life") ? 4 : 3;
+  /** EXTRA LIFE (permanent) now grants one brink-ward per meter per reign. */
+  hasMeterWards() {
+    return this.isUnlocked("extra_life");
   }
 
   getActiveAbilities() {

@@ -10,7 +10,27 @@ const MORAL_CASES = window.CELESTAI_CARDS || [];
 
 // ==========================================
 // PLAYER MORAL PROFILING TRACKER
+// Profile = which meters the player's chosen verdicts pushed (cumulative deltas).
 // ==========================================
+const PROFILE_ARCHETYPES = {
+  mercy: {
+    up: { title: "THE MERCIFUL", dominantTrait: "compassion over retribution", reflection: "Your verdicts poured mercy into Heaven, lifting souls that had not always earned the light." },
+    down: { title: "THE STERN", dominantTrait: "discipline over compassion", reflection: "You starved Heaven of mercy, demanding that every soul pay the full price of its deeds." }
+  },
+  justice: {
+    up: { title: "THE PUNISHER", dominantTrait: "uncompromising justice", reflection: "You wielded the scales with an iron hand; no sin went unanswered in your court." },
+    down: { title: "THE LENIENT", dominantTrait: "pardon over punishment", reflection: "Sin slipped through your court unpunished; you forgave what others would have condemned." }
+  },
+  order: {
+    up: { title: "THE LAWGIVER", dominantTrait: "celestial order and procedure", reflection: "You kept the heavenly ledgers balanced and the gates orderly, even when the heart argued otherwise." },
+    down: { title: "THE REVOLUTIONARY", dominantTrait: "conscience over procedure", reflection: "You tore through celestial procedure, judging by conscience while the Scribes despaired." }
+  },
+  faith: {
+    up: { title: "THE PROPHET", dominantTrait: "the faith of mortals", reflection: "Mortals below believed in your verdicts; every judgment was a sermon they could understand." },
+    down: { title: "THE HERETIC", dominantTrait: "truth over popularity", reflection: "Your verdicts shook the faith of mortals; you judged what was right, not what they wanted to hear." }
+  }
+};
+
 class MoralProfileTracker {
   constructor() {
     this.reset();
@@ -20,97 +40,63 @@ class MoralProfileTracker {
     this.totalJudged = 0;
     this.heavenCount = 0;
     this.hellCount = 0;
-    this.correctCount = 0;
-    this.mistakeCount = 0;
     this.timeouts = 0;
-
-    // Moral dimensions
-    this.utilitarianWeight = 0;
-    this.deontologyWeight = 0;
-    this.mercyWeight = 0;
-    this.punisherWeight = 0;
+    this.cumulative = { mercy: 0, justice: 0, order: 0, faith: 0 };
   }
 
-  recordDecision(story, decision, isCorrect) {
+  _addDeltas(deltas) {
+    if (!deltas) return;
+    Object.keys(this.cumulative).forEach((k) => {
+      this.cumulative[k] += Number(deltas[k]) || 0;
+    });
+  }
+
+  /** deltas = meter changes actually applied by this verdict (meterSystem.apply(...).deltas). */
+  recordDecision(story, decision, deltas) {
     this.totalJudged++;
-    if (decision === "HEAVEN") {
-      this.heavenCount++;
-      if (story && story.moralAxes) {
-        this.mercyWeight += story.moralAxes.mercy || 0;
-        this.utilitarianWeight += story.moralAxes.utilitarian || 0;
-      }
-    } else {
-      this.hellCount++;
-      if (story && story.moralAxes) {
-        this.punisherWeight += story.moralAxes.punisher || 0;
-        this.deontologyWeight += Math.abs(story.moralAxes.deontology || 0);
-      }
-    }
-
-    if (isCorrect) {
-      this.correctCount++;
-    } else {
-      this.mistakeCount++;
-    }
+    if (decision === "HEAVEN") this.heavenCount++;
+    else this.hellCount++;
+    this._addDeltas(deltas);
   }
 
-  recordTimeout() {
+  recordTimeout(deltas) {
     this.totalJudged++;
     this.timeouts++;
-    this.mistakeCount++;
+    this._addDeltas(deltas);
   }
 
   getProfile() {
-    const total = Math.max(1, this.totalJudged);
-    const mercyRatio = this.mercyWeight / total;
-    const punisherRatio = this.punisherWeight / total;
-    const utilRatio = this.utilitarianWeight / total;
-    const deonRatio = this.deontologyWeight / total;
+    let bestKey = null;
+    let bestAbs = 0;
+    Object.entries(this.cumulative).forEach(([k, v]) => {
+      if (Math.abs(v) > bestAbs) {
+        bestAbs = Math.abs(v);
+        bestKey = k;
+      }
+    });
 
-    if (mercyRatio > 0.55 && this.heavenCount > this.hellCount * 1.5) {
-      return {
-        title: "THE MERCIFUL",
-        reflection: "You consistently sought redemption and forgiveness, granting mercy to flawed souls who carried heavy burdens.",
-        dominantTrait: "mercy over retribution"
-      };
-    } else if (punisherRatio > 0.55 && this.hellCount > this.heavenCount * 1.5) {
-      return {
-        title: "THE PUNISHER",
-        reflection: "You wielded the eternal scales with an unyielding iron hand, refusing to excuse transgressions regardless of excuses.",
-        dominantTrait: "uncompromising justice over mercy"
-      };
-    } else if (utilRatio > 0.5) {
-      return {
-        title: "THE UTILITARIAN",
-        reflection: "You prioritized the greater good and lives preserved, willing to pardon dirty hands if the final outcome saved humanity.",
-        dominantTrait: "consequences over rigid rules"
-      };
-    } else if (deonRatio > 0.5) {
-      return {
-        title: "THE ABSOLUTIST",
-        reflection: "You held sacred the moral commandments, declaring that intentional evil can never be redeemed by post-hoc utility.",
-        dominantTrait: "sacred principles over pragmatic calculation"
-      };
-    } else if (this.heavenCount > this.hellCount) {
-      return {
-        title: "THE FORGIVER",
-        reflection: "You leaned towards compassion when souls showed sacrifice for family and community.",
-        dominantTrait: "compassion in the face of human tragedy"
-      };
-    } else {
+    if (!bestKey || bestAbs < 15) {
       return {
         title: "THE BALANCED JUDGE",
-        reflection: "You weighed each soul on its individual merits, balancing justice and mercy without dogma.",
-        dominantTrait: "measured impartiality across the celestial divide"
+        reflection: "You weighed each soul on its own merits, never letting one virtue of Heaven swallow the others.",
+        dominantTrait: "measured balance across the celestial divide",
+        meter: null
       };
     }
+    const dir = this.cumulative[bestKey] > 0 ? "up" : "down";
+    return { ...PROFILE_ARCHETYPES[bestKey][dir], meter: bestKey, dir };
   }
 
-  calculatePlayerDestiny(score) {
-    if (score >= 6 && this.mistakeCount <= 3 && this.mercyWeight >= this.punisherWeight * 0.7) {
-      return "HEAVEN";
-    }
-    return "HELL";
+  /**
+   * Destiny from the final balance of the meters: a long reign that kept the
+   * surviving meters near the center earns Heaven.
+   */
+  calculatePlayerDestiny(score, meters, deathMeter) {
+    const m = meters || (window.meterSystem ? window.meterSystem.values() : null);
+    if (!m) return score >= 8 ? "HEAVEN" : "HELL";
+    const keys = Object.keys(m).filter((k) => k !== deathMeter);
+    const dev = keys.reduce((sum, k) => sum + Math.abs(m[k] - 50), 0) / Math.max(1, keys.length);
+    return score >= 8 && dev <= 22 ? "HEAVEN" : "HELL";
   }
 }
 
@@ -247,34 +233,33 @@ class StoryDeck {
     return story;
   }
 
-  evaluateDecision(story, decision, useFinalWord = false) {
-    if (!story) return { score: 50, isCorrect: true, feedback: "A measured judgment." };
-
-    let score = decision === "HEAVEN" ? story.heavenDefensibility : story.hellDefensibility;
-    let feedback = decision === "HEAVEN" ? story.heavenFeedback : story.hellFeedback;
-    let isCorrect = score >= 40;
-
-    let ratingLabel = "DEFENSIBLE";
-    if (score >= 70) ratingLabel = "STRONG JUDGMENT";
-    else if (score < 40) ratingLabel = "WEAK JUDGMENT";
-
-    // FINAL WORD perk: If AI rates decision as DEBATABLE (40-69), auto-accept as STRONG / correct!
-    if (useFinalWord && score >= 40 && score < 70) {
-      score = Math.max(score, 75);
-      ratingLabel = "FINAL WORD (ACCEPTED)";
-      isCorrect = true;
-      feedback = "Invoking the Final Word, the Arbiter's decree is made absolute.";
+  /**
+   * Returns what a verdict WOULD do (pure; the core loop applies + records it).
+   * { side, effects, feedback, quote, setFlags, clearFlags }
+   */
+  evaluateDecision(story, decision) {
+    const side = decision === "HEAVEN" ? "heaven" : "hell";
+    const branch = story && story[side];
+    if (branch && branch.effects) {
+      return {
+        side,
+        effects: { ...branch.effects },
+        feedback: branch.feedback || "",
+        quote: branch.quote || "",
+        setFlags: branch.setFlags || [],
+        clearFlags: branch.clearFlags || []
+      };
     }
-
-    // Record in profile
-    this.profileTracker.recordDecision(story, decision, isCorrect);
-
+    // Legacy fallback (pre-schema cases): tiny symmetric effects so the loop never breaks.
+    const legacyFeedback = story ? story[side + "Feedback"] : "";
+    const legacyQuote = story ? story[side + "Quote"] : "";
     return {
-      score,
-      ratingLabel,
-      isCorrect,
-      feedback,
-      bothDefensible: story.heavenDefensibility >= 40 && story.hellDefensibility >= 40
+      side,
+      effects: side === "heaven" ? { mercy: 6, justice: -6 } : { mercy: -6, justice: 6 },
+      feedback: legacyFeedback || "A measured judgment.",
+      quote: legacyQuote || "",
+      setFlags: [],
+      clearFlags: []
     };
   }
 }
