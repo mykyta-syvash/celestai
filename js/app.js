@@ -248,8 +248,6 @@ class CelestialGame {
     this.dom.menuBtnSettings.addEventListener("click", () => this.openSettingsScreen());
 
     // Pre-Run Screen Buttons
-    this.dom.btnBeginRun.addEventListener("click", () => this.startRun());
-    this.dom.btnNewRunBack.addEventListener("click", () => this.showScreen("screen-main-menu"));
 
     // Achievements Screen Listeners
     if (this.dom.btnAchievementsBack) {
@@ -492,43 +490,11 @@ class CelestialGame {
   // ==========================================
   openNewRunScreen() {
     // No pre-run screen: straight into the action
-    this.showScreen("screen-new-run");
     this.startRun();
   }
 
-  openNewRunScreenLegacy() {
-    window.soundEngine.playClick();
-    this.showScreen("screen-new-run");
-
-    const meters = (window.meterSystem && window.meterSystem.METERS) || [];
-    if (this.dom.preRunMeters) {
-      this.dom.preRunMeters.innerHTML = meters
-        .map((m) => `<span class="pre-run-meter">${m.icon}<small>${m.label} 50</small></span>`)
-        .join("");
-    }
-    if (this.dom.preRunReign) {
-      const next = (window.skillManager.getReignNumber() || 0) + 1;
-      this.dom.preRunReign.textContent = `JUDGE #${next} · ${this.timedMode ? "TIMED" : "UNTIMED"}`;
-    }
-
-    // Preview unlocked active skills
-    const activeSkills = window.skillManager.getActiveAbilities();
-    if (activeSkills.length > 0) {
-      let previewHtml = `<span class="preview-title">UNLOCKED REIGN ABILITIES</span><div class="preview-badges">`;
-      activeSkills.forEach((s) => {
-        previewHtml += `<span class="ability-pill-preview">${s.icon} ${s.name}</span>`;
-      });
-      previewHtml += `</div>`;
-      this.dom.preRunAbilitiesPreview.innerHTML = previewHtml;
-    } else {
-      this.dom.preRunAbilitiesPreview.innerHTML = `
-        <span class="preview-hint">Keep all four meters away from 0 and 100. Earn XP to unlock abilities in the Skill Tree!</span>
-      `;
-    }
-  }
-
   startRun() {
-    if (this.currentScreen !== "screen-new-run" && this.currentScreen !== "screen-main-menu" && this.currentScreen !== "screen-run-results") return;
+    if (this.currentScreen === "gameplay-layer") return;
     window.soundEngine.playClick();
     window.soundEngine.fadeAndStopMenuMusic(400);
 
