@@ -923,6 +923,9 @@ class CelestialGame {
       this.currentSoul = null;
     }
 
+    // Hide the gameplay HUD/card so it doesn't bleed through the tribunal overlay
+    this.dom.screens.gameplayLayer.classList.add("hidden");
+
     this.renderer.triggerAngelLighting();
     this.environment.resetEffects();
 
@@ -954,7 +957,7 @@ class CelestialGame {
     tapHint.classList.remove("hidden");
 
     const beats = [
-      `"You have judged ${this.totalJudged} souls with a final score of ${this.score}."`,
+      `"You have judged ${this.totalJudged} ${this.totalJudged === 1 ? "soul" : "souls"} with a final score of ${this.score}."`,
       `"In your court, you consistently valued ${profile.dominantTrait}."`,
       `"${profile.reflection}"`,
       `"Now... it is your turn."`
