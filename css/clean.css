@@ -2,9 +2,12 @@
 
 /* Kill glows everywhere */
 *, *::before, *::after { text-shadow: none !important; }
-.game-screen *, .celestial-hud *, .celestial-hud, #verdict-modal *, .angel-dialog-box, .angel-dialog-box * {
-  box-shadow: none !important;
-  filter: none !important;
+/* Soft neutral depth instead of colored glows */
+.hud-wing, .meter-bar, .stone-plaque-btn, .menu-progression-plaque, .menu-settings-btn,
+.achievement-card, .achievements-progress-card, .skill-node-card, .pre-run-card, .results-card-item,
+.record-card, .settings-item, .verdict-tablet, .angel-dialog-box, .compact-soul-tablet, .judgment-tablet,
+.btn-main-action, .menu-btn, .altar-button, .altar-judge-btn {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35) !important;
 }
 .ach-card-glow, .altar-glow-burst, .tablet-frame-runes { display: none !important; }
 

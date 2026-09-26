@@ -491,6 +491,12 @@ class CelestialGame {
   // PRE-RUN SCREEN
   // ==========================================
   openNewRunScreen() {
+    // No pre-run screen: straight into the action
+    this.showScreen("screen-new-run");
+    this.startRun();
+  }
+
+  openNewRunScreenLegacy() {
     window.soundEngine.playClick();
     this.showScreen("screen-new-run");
 
@@ -522,7 +528,7 @@ class CelestialGame {
   }
 
   startRun() {
-    if (this.currentScreen !== "screen-new-run") return;
+    if (this.currentScreen !== "screen-new-run" && this.currentScreen !== "screen-main-menu" && this.currentScreen !== "screen-run-results") return;
     window.soundEngine.playClick();
     window.soundEngine.fadeAndStopMenuMusic(400);
 
