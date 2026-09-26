@@ -24,7 +24,8 @@ function validateCard(c) {
   for (const k of ["name", "title", "dilemma", "virtue", "sin", "hiddenFact"]) {
     if (typeof c[k] !== "string" || !c[k].trim()) e(`missing ${k}`);
   }
-  if (typeof c.age !== "number" || c.age < 0) e("age must be a number");
+  // Mortals have numeric ages; demons/angels may use a label such as "Eternal"
+  if (!(typeof c.age === "number" && c.age >= 0) && !(typeof c.age === "string" && c.age.trim())) e("age must be a number or a label");
   for (const k of ["dilemma", "virtue", "sin"]) if (words(c[k]) > LIMITS[k]) e(`${k} has ${words(c[k])} words (>${LIMITS[k]})`);
   if (c.speaker !== undefined && !SPEAKERS.includes(c.speaker)) e(`bad speaker ${c.speaker}`);
   if (c.once !== undefined && typeof c.once !== "boolean") e("once must be boolean");
