@@ -1,7 +1,7 @@
 {
   "name": "celestai",
   "version": "1.0.0",
-  "description": "CELESTAI — Five seconds to judge a soul. A polished low-poly 3D mobile arcade game.",
+  "description": "CELESTAI \u2014 Five seconds to judge a soul. A polished low-poly 3D mobile arcade game.",
   "scripts": {
     "start": "node --env-file-if-exists=.env server.js",
     "serve:static": "python3 -m http.server 8090",
@@ -19,6 +19,6 @@
   "author": "Mykyta Syvash <mykytasyvash@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=22.9"
   }
 }
