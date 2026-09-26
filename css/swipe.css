@@ -1,0 +1,153 @@
+/* CELESTAI swipe card + drag labels. OWNER: swipe/UI agent. */
+
+/* ---------- Swipeable card ---------- */
+#story-card.swipe-card {
+  touch-action: none;              /* drags belong to the card; page never scrolls / pull-to-refreshes */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: grab;
+  will-change: transform;
+  transform-origin: 50% 110%;
+  padding: 12px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+}
+
+#story-card.swipe-card.swipe-dragging { cursor: grabbing; animation: none; }
+#story-card.swipe-card.swipe-flying { animation: none; pointer-events: none; }
+#story-card.swipe-card.swipe-disabled { cursor: default; }
+#story-card.swipe-card.swipe-enter { animation: swipeCardEnter 0.26s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+
+@keyframes swipeCardEnter {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Armed = release now commits */
+#story-card.swipe-armed-heaven { border-color: rgba(255, 236, 170, 0.95); box-shadow: 0 0 24px rgba(255, 223, 120, 0.55), 0 14px 34px rgba(0, 0, 0, 0.75); }
+#story-card.swipe-armed-hell { border-color: rgba(255, 70, 50, 0.95); box-shadow: 0 0 24px rgba(220, 30, 20, 0.55), 0 14px 34px rgba(0, 0, 0, 0.75); }
+
+/* ---------- Edge labels ---------- */
+.swipe-label {
+  position: absolute;
+  top: 8px;
+  z-index: 2;
+  padding: 2px 9px;
+  font-family: var(--font-display, "Cinzel", serif);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.08s linear;
+}
+.swipe-label-heaven {
+  left: 12px;
+  color: #ffe9a8;
+  background: rgba(40, 32, 8, 0.85);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  transform: rotate(-10deg);
+}
+.swipe-label-hell {
+  right: 12px;
+  color: #ff5a44;
+  background: rgba(40, 6, 4, 0.85);
+  text-shadow: 0 0 10px rgba(255, 40, 0, 0.8);
+  transform: rotate(10deg);
+}
+
+/* ---------- Dilemma: first & largest ---------- */
+#story-card .swipe-dilemma {
+  margin: 0;
+  font-size: 16.5px;
+  line-height: 1.32;
+  font-weight: 700;
+  font-style: normal;
+  color: #fbf5e4;
+  text-align: center;
+  padding: 2px 4px 0;
+  text-wrap: balance;
+}
+
+/* ---------- Virtue / sin chips ---------- */
+.swipe-chips {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.swipe-chip {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.swipe-chip-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.swipe-chip-icon { flex: none; font-size: 10px; }
+.swipe-chip-virtue { color: #ffe9a8; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.35); }
+.swipe-chip-sin { color: #ffb3a6; background: rgba(255, 60, 30, 0.1); border: 1px solid rgba(255, 60, 30, 0.35); }
+
+/* ---------- Identity badge: compact single line ---------- */
+#story-card .swipe-identity {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  opacity: 0.9;
+}
+#story-card .swipe-identity .soul-identity-name { font-size: 12px; letter-spacing: 1.2px; }
+#story-card .swipe-identity .soul-identity-sub { font-size: 9px; margin-top: 0; }
+
+/* ---------- First-run hint ---------- */
+.swipe-hint {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(255, 236, 190, 0.75);
+  animation: swipeHintPulse 1.6s ease-in-out infinite;
+}
+.swipe-hint[hidden] { display: none; }
+@keyframes swipeHintPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+/* ---------- Smaller fallback altar buttons ---------- */
+#actions-container.swipe-altars-compact { height: 54px; gap: 10px; }
+#actions-container.swipe-altars-compact .altar-platform { flex-direction: row; gap: 6px; inset: 0 0 6px 0; }
+#actions-container.swipe-altars-compact .crest-glyph { font-size: 15px; }
+#actions-container.swipe-altars-compact .altar-title { font-size: 15px; letter-spacing: 2px; }
+#actions-container.swipe-altars-compact .altar-key { font-size: 9px; }
+#actions-container.swipe-altars-compact .altar-heaven .altar-pedestal-bevel,
+#actions-container.swipe-altars-compact .altar-hell .altar-pedestal-bevel { border-radius: 14px; }
+
+/* ---------- Small screens (375x667) ---------- */
+@media (max-height: 700px) {
+  #story-card .swipe-dilemma { font-size: 15.5px; }
+  #actions-container.swipe-altars-compact { height: 48px; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #story-card.swipe-card,
+  #story-card.swipe-card.swipe-enter { animation: none; }
+  .swipe-hint { animation: none; opacity: 0.85; }
+  .swipe-label { transition: none; }
+}

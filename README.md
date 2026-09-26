@@ -30,80 +30,51 @@ MAIN MENU / JUDGE AGAIN
 
 ## 🎮 Game Systems
 
-### 1. Scoring & 3 Lives (♥ ♥ ♥)
-- **Starting Lives**: 3 (`♥ ♥ ♥`).
-- **Defensible Judgment**: Score $\ge 40 \to$ `+1 SCORE` with green floating popup and streak increment.
-- **Indefensible Judgment**: Score $< 40 \to$ `-1 LIFE` with dramatic heart-break and screen shake.
-- **High Score**: Persists locally across runs in `localStorage`.
-- **Game Over**: Losing your 3rd life immediately halts the mortal soul queue and triggers **The Archangel's Tribunal**.
+### 1. The Four Meters (Reigns-style)
+Every verdict moves the balance of Heaven. Four meters start at **50** and live in **0–100**:
 
-### 2. Multi-Tier Moral Complexity
-Moral cases are not black-and-white. The dilemmas balance intent, collateral consequences, systemic necessity, sacrifice, and justice across three dynamic difficulty tiers:
-- **Tier 1 (Early Game, Score 0–3)**: Obvious heroes with minor human flaws or predatory villains with token excuses.
-- **Tier 2 (Mid Game, Score 4–8)**: Conflicting actions where both choices are defensible (e.g., Robin Hood thefts that fed thousands but accidentally killed a guard).
-- **Tier 3 (Late Game, Score 9+)**: Profound dilemmas involving mass utilitarian triage, sacrifice of innocent lives to stop global catastrophe, military treason to expose hospital bombings, and artificial intelligence rights.
+| Meter | Meaning |
+|---|---|
+| 🕊️ **MERCY** | The compassion of Heaven |
+| ⚖️ **JUSTICE** | Whether sin is punished |
+| 📜 **ORDER** | The celestial bureaucracy / balance of Heaven–Hell intake |
+| 🙏 **FAITH** | Mortals' belief in your verdicts |
 
-### 3. AI Defensibility Evaluation (0–100)
-- Every case possesses separate defensibility ratings for **both** Heaven and Hell:
-  - **70–100**: `STRONG JUDGMENT`
-  - **40–69**: `DEFENSIBLE / DEBATABLE`
-  - **0–39**: `WEAK JUDGMENT`
-- **Controversial cases allow both choices to score!** (e.g. Heaven: 76, Hell: 82). The game rewards sound moral reasoning rather than guessing a developer's single hidden bias.
-- After each verdict, a punchy 1-sentence AI explanation articulates the philosophical trade-off.
+Each card's Heaven and Hell sides touch 2–3 meters. **Any meter reaching 0 or 100 ends your reign** — 8 distinct endings (each meter × low/high, e.g. *The Cold Gates*, *The Paper Tomb*, *The False Idol*). Hovering / dragging toward a verdict shows Reigns-style dots over the meters it will move (small dot < 8, big dot ≥ 8; direction hidden).
 
-### 4. 5-Second Real-Time Countdown
-- The player has 5 seconds per soul.
-- At $\le 2$ seconds, the bar flashes urgent crimson accompanied by rapid audio ticks.
-- **Hesitation Penalty**: Running out of time counts as an automatic failure (`-1 LIFE`), plunging the soul into the abyss with the lesson: *"Impartiality in the face of judgment is itself a moral failure."*
+### 2. Reigns, Score & XP
+- Every soul judged = **+1 score** (reign length) and **+1 XP**. No right or wrong answers — only consequences.
+- The verdict tablet shows per-meter delta chips (↑/↓ with numbers), the verdict's feedback and the soul's last words.
+- Reigns are numbered and persisted ("**Judge #N**", `localStorage.celestai_reign`). Best = longest reign.
 
-### 5. Background Pre-Generation
-- While the player reviews the active soul, the subsequent case is pre-selected and cached in the background according to the player's score tier.
-- Transitions between souls are instantaneous (0ms latency).
+### 3. Optional Timed Mode
+Default is **untimed**. *Settings → TIMED MODE* (`localStorage.celestai_timed`) gives 8 s per soul; hesitating costs 📜 −10 and 🙏 −6.
 
-### 6. The Archangel Tribunal & Player Destiny
-When the player exhausts all 3 lives:
-1. The courtroom plunges into atmospheric darkness under a stark celestial spotlight.
-2. The **Archangel** descends onto the dais with spread faceted wings, floating golden halo, and the judgment staff.
-3. The Angel reflects upon the player's overarching judicial habits (mercy vs retribution, utility vs principle).
-4. The Angel assigns a **Player Moral Profile**:
-   - `THE UTILITARIAN`: Prioritized net lives saved and greater good despite dirty hands.
-   - `THE ABSOLUTIST`: Upheld moral commandments, refusing to excuse intentional evil.
-   - `THE MERCIFUL`: Consistently granted redemption and forgiveness to suffering souls.
-   - `THE PUNISHER`: Strictly condemned transgressions with an iron hand.
-   - `THE FORGIVER`: Pardoned souls who sacrificed for loved ones.
-   - `THE BALANCED JUDGE`: Balanced scales without dogma.
-5. The Angel issues the final verdict: **YOUR SOUL BELONGS IN HEAVEN OR HELL**.
+### 4. The Archangel Tribunal & Destiny
+When the scales break, the Archangel recounts your reign: the death-specific ending, then a 2–3 sentence reflection (AI via `aiSouls.tribunal()` when available, static fallback otherwise). Destiny: **HEAVEN** if you judged ≥ 8 souls and kept the surviving meters near balance (avg. deviation ≤ 22), otherwise **HELL**. The results screen shows the cause of your fall, final meters and your **moral profile**, derived from which meters your verdicts pushed (The Merciful / The Stern / The Punisher / The Lenient / The Lawgiver / The Revolutionary / The Prophet / The Heretic / The Balanced Judge).
 
----
+### 5. Permanent Judge Skill Tree ("THE JUDGE")
+Skill ids and XP costs are unchanged (old saves stay valid). All active skills are 1 charge per reign.
 
-### 6. Permanent Judge Skill Tree ("THE JUDGE")
+#### ✦ JUSTICE BRANCH (Understanding Souls)
+1. **TRUE SIGHT (10 XP)**: Reveal the soul's hidden fact.
+2. **MORAL CLARITY (25 XP)**: Intent vs consequences + the *direction* each verdict pushes every meter (preview dots show ↑/↓).
+3. **DOUBLE JUDGMENT (50 XP)**: Exact meter deltas of both verdicts (preview dots show numbers).
+4. **FINAL WORD (100 XP)**: Arm before a verdict — every change that would push a meter away from balance is cancelled.
 
-Earn **+1 XP** for every correct judgment. XP is permanent, persists in `localStorage`, and determines Player Rank:
-- **Level 1**: MORTAL (0 XP)
-- **Level 2**: ACOLYTE (10 XP)
-- **Level 3**: JUDGE (25 XP)
-- **Level 4**: ARCHJUDGE (50 XP)
-- **Level 5**: DIVINE JUDGE (100 XP)
-- **Level 6**: CELESTIAL (200 XP)
-- **Level 7**: ETERNAL (500 XP)
+#### ✦ AUTHORITY BRANCH (Time & Decisions — each has an untimed alternative)
+1. **TIME PAUSE (10 XP)**: Timed: freeze 3 s. Untimed: ease your most extreme meter 10 toward 50.
+2. **TIME DILATION (25 XP)**: Timed: +3 s. Untimed: defer the current soul without a verdict.
+3. **SECOND CHANCE (50 XP)**: Trigger. A verdict that would end your reign is undone (meters restored) and you judge again.
+4. **ABSOLUTE JUDGMENT (100 XP)**: Timed: freeze 10 s. Untimed: all four meters move halfway back to 50.
 
-#### ✦ JUSTICE BRANCH (Understanding Souls & Cases)
-1. **TRUE SIGHT (10 XP)**: 1 charge/run. Reveal one additional hidden truth about the current soul.
-2. **MORAL CLARITY (25 XP)**: 1 charge/run. Reveal simplified moral analysis of intent vs consequences.
-3. **DOUBLE JUDGMENT (50 XP)**: 1 charge/run. Reveal exact defensibility % for both Heaven and Hell.
-4. **FINAL WORD (100 XP)**: 1 charge/run. If AI rates your choice as DEBATABLE (40–69%), auto-accept as correct.
+#### ✦ DIVINITY BRANCH (Survival)
+1. **EXTRA LIFE (15 XP)**: Permanent ward — the first time each meter hits its brink in a reign it stops at 6/94.
+2. **FORGIVENESS (30 XP)**: Trigger. The first collapse of your reign is forgiven; that meter returns to 50.
+3. **IMMORTAL SOUL (75 XP)**: Trigger. A further collapse is survived; all four meters return to 50.
+4. **DIVINE INTERVENTION (150 XP)**: Timed: +3 s instead of the hesitation penalty. Untimed: the first meter to enter the danger zone (≤10 / ≥90) is pulled back to 30/70.
 
-#### ✦ AUTHORITY BRANCH (Control Over Time & Decisions)
-1. **TIME PAUSE (10 XP)**: 1 charge/run. Freeze countdown timer for 3 seconds.
-2. **TIME DILATION (25 XP)**: 1 charge/run. Extend countdown timer from 5s to 8s (+3s).
-3. **SECOND CHANCE (50 XP)**: 1 charge/run. After a wrong judgment, choose Heaven or Hell again before losing a life.
-4. **ABSOLUTE JUDGMENT (100 XP)**: 1 charge/run. Completely freeze time for 10 seconds with celestial stillness.
-
-#### ✦ DIVINITY BRANCH (Survival & Divine Intervention)
-1. **EXTRA LIFE (15 XP)**: Permanent. Start every run with 4 lives (♥ ♥ ♥ ♥) instead of 3.
-2. **FORGIVENESS (30 XP)**: 1 charge/run. First wrong judgment of the run is forgiven with 0 life loss.
-3. **IMMORTAL SOUL (75 XP)**: 1 charge/run. When you would lose your final life, prevent Game Over and continue with 1 life.
-4. **DIVINE INTERVENTION (150 XP)**: 1 charge/run. When timer reaches zero, grant +3 seconds instead of losing a life.
+Rescue order when a verdict would be fatal: Ward → Second Chance → Forgiveness → Immortal Soul.
 
 ---
 
@@ -111,8 +82,9 @@ Earn **+1 XP** for every correct judgment. XP is permanent, persists in `localSt
 
 | Action | Touch / Mouse | Keyboard |
 | :--- | :--- | :--- |
-| **Send to Heaven** | Tap **HEAVEN** button | `[A]` or `[Left Arrow]` |
-| **Send to Hell** | Tap **HELL** button | `[D]` or `[Right Arrow]` |
+| **Send to Heaven** | Swipe the soul card **left**, or tap **HEAVEN** | `[A]` or `[Left Arrow]` |
+| **Send to Hell** | Swipe the soul card **right**, or tap **HELL** | `[D]` or `[Right Arrow]` |
+| **Preview a verdict** | Drag the card part-way (meters it affects light up); release early to cancel | — |
 | **Skip Verdict Wait** | Tap modal | `[Space]` or Click |
 | **Toggle Sound** | Tap **🔊** / **🔇** | Top-right button |
 
@@ -121,11 +93,28 @@ Earn **+1 XP** for every correct judgment. XP is permanent, persists in `localSt
 ## 🚀 Running the Game
 
 ```bash
-cd /Users/nikita/.gemini/antigravity/scratch/celestial-judgment
-python3 -m http.server 8090
+# from the repo root
+npm start            # or: python3 -m http.server 8090
 ```
 
 Open:
 ```
 http://localhost:8090/
 ```
+
+---
+
+## 🤖 AI Souls (OpenAI)
+
+The 80-card base deck (`js/cards/deck.js`) always works offline. Optionally, a tiny zero-dependency Node server can generate extra souls live with OpenAI — the key stays on the server, never in the browser.
+
+```bash
+export OPENAI_API_KEY=sk-...          # required for AI souls
+export OPENAI_MODEL=gpt-4.1-mini      # optional (default)
+npm start                             # node server.js → http://localhost:8090 (PORT env to change)
+```
+
+- `GET /api/health` → `{ ai: true|false }`; `POST /api/soul` (reign context → one validated card that pressures the most extreme meter); `POST /api/tribunal` (run summary → the Archangel's 2–3 sentence reflection).
+- Without a key (or with `npm run serve:static`) the game silently falls back to the static deck.
+- Offline batch: `OPENAI_API_KEY=... node scripts/generate-souls.mjs 20` appends validated cards to `js/cards/generated.js`.
+- Validate the deck and meter balance: `npm run check:deck`.

@@ -22,6 +22,12 @@ class SceneRenderer {
     this.camera.position.copy(this.baseCamPos);
     this.camera.lookAt(this.baseLookTarget);
 
+    // Screen-aware framing: the Judge (menus) and Archangel (tribunal) are fitted
+    // between the UI chrome instead of being cropped by it on tall/narrow screens.
+    this.currentLook = this.baseLookTarget.clone();
+    this.framingCache = {};
+    this.framingCamera = new THREE.PerspectiveCamera(42, this.width / this.height, 0.1, 100);
+
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -121,7 +127,7 @@ class SceneRenderer {
     this.keyLight.color.setHex(0x3b4c68);
     this.heavenSpot.intensity = 4.5;
     this.heavenSpot.color.setHex(0xfffae0);
-    this.cameraOffset.set(0, -0.1, -1.0); // Focus tightly on Angel
+    this.cameraOffset.set(0, 0, 0); // Angel framing is handled by getFraming("angel")
     this.shakeIntensity = 0;
   }
 
@@ -145,6 +151,93 @@ class SceneRenderer {
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
+    this.framingCache = {};
+  }
+
+  // Pixel band (relative to the canvas) the subject must fit into, measured from the live UI.
+  measureBand(kind) {
+    const h = this.height;
+    const origin = this.container.getBoundingClientRect().top;
+    const rectOf = (sel) => {
+      const el = document.querySelector(sel);
+      const r = el && el.getBoundingClientRect();
+      return r && r.height > 0 ? r : null;
+    };
+
+    if (kind === "menu") {
+      const logo = rectOf(".celestai-brand-header");
+      const altar = rectOf(".menu-altar-controls");
+      if (!logo || !altar) return null;
+      return { top: logo.bottom - origin + 8, bottom: altar.top - origin - 4 };
+    }
+    if (kind === "angel") {
+      const dialog = rectOf(".angel-dialog-box");
+      return { top: h * 0.04, bottom: (dialog ? dialog.top - origin : h * 0.72) - 12 };
+    }
+    return null;
+  }
+
+  // Finds a camera position/look target (same viewing angle as the base camera) that maps
+  // the subject's top/bottom points onto the requested pixel band.
+  solveFraming(topPoint, bottomPoint, band) {
+    const cam = this.framingCamera;
+    cam.aspect = this.width / this.height;
+    cam.updateProjectionMatrix();
+
+    const dir = this.baseCamPos.clone().sub(this.baseLookTarget);
+    const baseDist = dir.length();
+    dir.normalize();
+
+    const toPx = (v) => (1 - (v.clone().project(cam).y + 1) / 2) * this.height;
+    const look = new THREE.Vector3();
+    let best = null;
+
+    for (let scale = 0.7; scale <= 2.8; scale += 0.02) {
+      for (let lookY = 0.2; lookY <= 3.0; lookY += 0.02) {
+        look.set(0, lookY, 0);
+        cam.position.copy(look).addScaledVector(dir, baseDist * scale);
+        cam.lookAt(look);
+        cam.updateMatrixWorld();
+        const err = (toPx(topPoint) - band.top) ** 2 + (toPx(bottomPoint) - band.bottom) ** 2;
+        if (!best || err < best.err) {
+          best = { err, pos: cam.position.clone(), look: look.clone() };
+        }
+      }
+    }
+    return best;
+  }
+
+  getFraming(kind) {
+    if (this.framingCache[kind]) return this.framingCache[kind];
+
+    const fallback = {
+      menu: { top: this.height * 0.13, bottom: this.height * 0.76 },
+      angel: { top: this.height * 0.04, bottom: this.height * 0.7 }
+    }[kind];
+    const measured = this.measureBand(kind);
+    const band = measured || fallback;
+
+    // Subject extents in world space (Judge on its dais / hovering Archangel)
+    const points = kind === "menu"
+      ? { top: new THREE.Vector3(0, 3.5, 0), bottom: new THREE.Vector3(0, -0.56, 1.9) }
+      : { top: new THREE.Vector3(0, 3.5, 0), bottom: new THREE.Vector3(0, 0.45, 0.65) };
+
+    const framing = this.solveFraming(points.top, points.bottom, band);
+    // Only cache real measurements so a hidden screen doesn't pin the fallback
+    if (measured) this.framingCache[kind] = framing;
+    return framing;
+  }
+
+  activeFramingKind() {
+    let judgeVisible = false;
+    let angelPresent = false;
+    for (const child of this.scene.children) {
+      if (child.name === "AngelRoot") angelPresent = true;
+      if (child.name === "JudgeRoot" && child.visible) judgeVisible = true;
+    }
+    if (angelPresent) return "angel";
+    if (judgeVisible) return "menu";
+    return null;
   }
 
   render(delta) {
@@ -157,12 +250,16 @@ class SceneRenderer {
       this.shakeIntensity = Math.max(0, this.shakeIntensity - delta * 0.4);
     }
 
-    const targetPos = this.baseCamPos.clone().add(this.cameraOffset);
+    const framingKind = this.activeFramingKind();
+    const framing = framingKind ? this.getFraming(framingKind) : null;
+    const targetLook = framing ? framing.look : this.baseLookTarget;
+    const targetPos = (framing ? framing.pos.clone() : this.baseCamPos.clone()).add(this.cameraOffset);
     targetPos.x += shakeX;
     targetPos.y += shakeY;
 
     this.camera.position.lerp(targetPos, 0.08);
-    this.camera.lookAt(this.baseLookTarget);
+    this.currentLook.lerp(targetLook, 0.08);
+    this.camera.lookAt(this.currentLook);
 
     // Decay dynamic lights smoothly
     if (this.heavenSpot.intensity > 0) {

@@ -4,9 +4,35 @@
  * 1. Screen Flow: Main Menu -> New Run -> Gameplay -> Angel Climax -> Run Results -> Skill Tree -> Menu
  * 2. Permanent Judge Progression: Lifetime XP, Levels, and Skill Tree Unlocks
  * 3. In-Game Active & Passive Skills: True Sight, Time Pause, Second Chance, Extra Life, etc.
- * 4. Real-time 5-Second Timer with pauses and dilations
- * 5. Procedural 3D WebGL scene integration
+ * 4. Four celestial meters (mercy/justice/order/faith) — any meter at 0 or 100 ends the reign
+ * 5. Optional TIMED MODE (8s per soul, localStorage celestai_timed)
+ * 6. Procedural 3D WebGL scene integration
  */
+
+const SOUL_TIMER_SECONDS = 8.0;
+const TIMEOUT_EFFECTS = { order: -10, faith: -6 };
+
+/** The 8 ways a reign can end (meter x low/high). */
+const REIGN_ENDINGS = {
+  mercy: {
+    low: { title: "THE COLD GATES", cause: "Mercy ran dry", text: "Without mercy the gates of Heaven rusted shut. The angels turned their faces from your throne." },
+    high: { title: "THE FLOODED PARADISE", cause: "Mercy overflowed", text: "You pardoned everyone. The unrepentant filled Paradise, and the saints rose up to cast you out." }
+  },
+  justice: {
+    low: { title: "LUCIFER'S LAUGHTER", cause: "Justice collapsed", text: "Sin went unpunished for too long. Lucifer laughed in your courtroom and took your gavel as a trophy." },
+    high: { title: "THE BURSTING PIT", cause: "Justice turned to cruelty", text: "Your sentences emptied Heaven. Hell overflowed until its gates burst and the damned marched on your throne." }
+  },
+  order: {
+    low: { title: "THE LOST QUEUE", cause: "Order dissolved", text: "The celestial bureaucracy collapsed. Souls wandered lost between realms, and the Scribes deposed you." },
+    high: { title: "THE PAPER TOMB", cause: "Order became tyranny", text: "Procedure devoured purpose. You were entombed in your own ledgers and replaced by a humble clerk." }
+  },
+  faith: {
+    low: { title: "THE SILENT PRAYERS", cause: "Faith faded", text: "Mortals stopped believing in your verdicts. Their prayers fell silent, and your throne faded with them." },
+    high: { title: "THE FALSE IDOL", cause: "Faith became worship", text: "Mortals worshipped you instead of the Divine. A jealous Heaven cast its idol down." }
+  }
+};
+
+const METER_ICONS = { mercy: "🕊️", justice: "⚖️", order: "📜", faith: "🙏" };
 
 class CelestialGame {
   constructor() {
@@ -23,26 +49,33 @@ class CelestialGame {
     this.currentStory = null;
     this.currentAngel = null;
 
-    // Timer & Mechanics
-    this.timerDuration = 5.0;
-    this.timeLeft = 5.0;
+    // Timer & Mechanics (TIMED MODE is opt-in)
+    this.timedMode = this.loadTimedMode();
+    this.timerDuration = SOUL_TIMER_SECONDS;
+    this.timeLeft = SOUL_TIMER_SECONDS;
     this.isTimeFrozen = false;
     this.timeFreezeRemaining = 0;
     this.lastUrgentTick = -1;
 
-    // Run Progression
-    this.lives = 3;
+    // Run (Reign) Progression
+    this.reign = window.skillManager.getReignNumber() || 0;
+    this.reignOver = false;
+    this.deathInfo = null;
+    this.reignHistory = [];
+    this.revealLevel = 0;
+    this.finalWordArmed = false;
     this.score = 0;
     this.runXP = 0;
     this.streak = 0;
     this.bestStreak = 0;
     this.totalJudged = 0;
-    this.pendingSecondChance = false;
     this.activeBranchTab = "justice";
 
     // DOM Caching
     this.initDOM();
     this.initEvents();
+    window.meterSystem?.mountHUD?.(this.dom.meterBar);
+    this.applyTimedModeUI();
 
     // Initialize 3D Judge Character & Pedestal
     this.initJudge();
@@ -90,7 +123,8 @@ class CelestialGame {
       menuBtnSettings: document.getElementById("menu-btn-settings"),
 
       // Pre-Run Elements
-      preRunLives: document.getElementById("pre-run-lives"),
+      preRunMeters: document.getElementById("pre-run-meters"),
+      preRunReign: document.getElementById("pre-run-reign"),
       preRunAbilitiesPreview: document.getElementById("pre-run-abilities-preview"),
       btnBeginRun: document.getElementById("btn-begin-run"),
       btnNewRunBack: document.getElementById("btn-new-run-back"),
@@ -98,9 +132,10 @@ class CelestialGame {
       // In-Game HUD & Ability Bar
       topBar: document.getElementById("top-bar"),
       statScore: document.getElementById("stat-score"),
-      statLives: document.getElementById("stat-lives"),
-      statStreak: document.getElementById("stat-streak"),
+      statReign: document.getElementById("stat-reign"),
+      statBest: document.getElementById("stat-best"),
       statHighScore: document.getElementById("stat-highscore"),
+      meterBar: document.getElementById("meter-bar"),
       btnAudio: document.getElementById("btn-audio"),
       abilityBar: document.getElementById("ability-bar"),
 
@@ -128,6 +163,8 @@ class CelestialGame {
       verdictModal: document.getElementById("verdict-modal"),
       verdictBadge: document.getElementById("verdict-badge"),
       verdictScore: document.getElementById("verdict-score"),
+      verdictDeltas: document.getElementById("verdict-deltas"),
+      verdictNote: document.getElementById("verdict-note"),
       verdictReasoning: document.getElementById("verdict-reasoning"),
       verdictQuote: document.getElementById("verdict-quote"),
 
@@ -136,8 +173,12 @@ class CelestialGame {
       angelDestinyContainer: document.getElementById("angel-destiny-container"),
       angelDestinyBanner: document.getElementById("angel-destiny-banner"),
       angelTapHint: document.getElementById("angel-tap-hint"),
+      angelEndingTitle: document.getElementById("angel-ending-title"),
 
       // Run Results Elements
+      resultsTitle: document.getElementById("results-title"),
+      resultsCause: document.getElementById("results-cause"),
+      resultsMeters: document.getElementById("results-meters"),
       resultsScore: document.getElementById("results-score"),
       resultsHighScore: document.getElementById("results-highscore"),
       resultsJudged: document.getElementById("results-judged"),
@@ -174,6 +215,7 @@ class CelestialGame {
       // Settings Screen Elements
       settingToggleSound: document.getElementById("setting-toggle-sound"),
       settingToggleMusic: document.getElementById("setting-toggle-music"),
+      settingToggleTimed: document.getElementById("setting-toggle-timed"),
       settingBtnReset: document.getElementById("setting-btn-reset"),
       btnSettingsBack: document.getElementById("btn-settings-back"),
 
@@ -230,6 +272,16 @@ class CelestialGame {
     });
 
     // In-Game Decision Buttons
+    // Reigns-style preview: hovering/focusing a verdict shows which meters it moves
+    const bindPreview = (btn, side) => {
+      btn.addEventListener("mouseenter", () => this.previewDecision(side));
+      btn.addEventListener("focus", () => this.previewDecision(side));
+      btn.addEventListener("mouseleave", () => this.previewDecision(null));
+      btn.addEventListener("blur", () => this.previewDecision(null));
+    };
+    bindPreview(this.dom.btnHeaven, "HEAVEN");
+    bindPreview(this.dom.btnHell, "HELL");
+
     this.dom.btnHeaven.addEventListener("mouseenter", () => window.soundEngine.playHover());
     this.dom.btnHeaven.addEventListener("click", () => {
       if (this.state !== "JUDGING") return;
@@ -259,7 +311,18 @@ class CelestialGame {
 
     // Keyboard Shortcuts
     window.addEventListener("keydown", (e) => {
-      if (this.state !== "JUDGING") return;
+      const advanceKey = e.key === "Enter" || e.key === " ";
+      if (advanceKey && this.state === "SHOW_VERDICT" && this.dom.verdictModal.onclick) {
+        e.preventDefault();
+        this.dom.verdictModal.onclick();
+        return;
+      }
+      if (advanceKey && this.state === "ANGEL_SEQUENCE" && this.dom.screens.angelScreen.onclick) {
+        e.preventDefault();
+        this.dom.screens.angelScreen.onclick();
+        return;
+      }
+      if (this.state !== "JUDGING" || e.repeat) return;
       if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") {
         this.dom.btnHeaven.classList.add("pressed");
         setTimeout(() => this.dom.btnHeaven.classList.remove("pressed"), 240);
@@ -298,6 +361,12 @@ class CelestialGame {
       this.dom.settingToggleMusic.textContent = enabled ? "ENABLED" : "MUTED";
       this.dom.settingToggleMusic.classList.toggle("active", enabled);
     });
+    if (this.dom.settingToggleTimed) {
+      this.dom.settingToggleTimed.addEventListener("click", () => {
+        window.soundEngine.playClick();
+        this.setTimedMode(!this.timedMode);
+      });
+    }
     this.dom.settingBtnReset.addEventListener("click", () => {
       if (confirm("Reset all permanent XP, Level, and Skill Tree progress?")) {
         window.skillManager.resetProgress();
@@ -425,17 +494,21 @@ class CelestialGame {
     window.soundEngine.playClick();
     this.showScreen("screen-new-run");
 
-    const maxLives = window.skillManager.getMaxLives();
-    let heartsHtml = "";
-    for (let i = 0; i < maxLives; i++) {
-      heartsHtml += `<span class="heart active">♥</span>`;
+    const meters = (window.meterSystem && window.meterSystem.METERS) || [];
+    if (this.dom.preRunMeters) {
+      this.dom.preRunMeters.innerHTML = meters
+        .map((m) => `<span class="pre-run-meter">${m.icon}<small>${m.label} 50</small></span>`)
+        .join("");
     }
-    this.dom.preRunLives.innerHTML = heartsHtml;
+    if (this.dom.preRunReign) {
+      const next = (window.skillManager.getReignNumber() || 0) + 1;
+      this.dom.preRunReign.textContent = `JUDGE #${next} · ${this.timedMode ? "TIMED" : "UNTIMED"}`;
+    }
 
     // Preview unlocked active skills
     const activeSkills = window.skillManager.getActiveAbilities();
     if (activeSkills.length > 0) {
-      let previewHtml = `<span class="preview-title">UNLOCKED RUN ABILITIES</span><div class="preview-badges">`;
+      let previewHtml = `<span class="preview-title">UNLOCKED REIGN ABILITIES</span><div class="preview-badges">`;
       activeSkills.forEach((s) => {
         previewHtml += `<span class="ability-pill-preview">${s.icon} ${s.name}</span>`;
       });
@@ -443,12 +516,13 @@ class CelestialGame {
       this.dom.preRunAbilitiesPreview.innerHTML = previewHtml;
     } else {
       this.dom.preRunAbilitiesPreview.innerHTML = `
-        <span class="preview-hint">No active skills unlocked yet. Earn XP to unlock abilities in the Skill Tree!</span>
+        <span class="preview-hint">Keep all four meters away from 0 and 100. Earn XP to unlock abilities in the Skill Tree!</span>
       `;
     }
   }
 
   startRun() {
+    if (this.currentScreen !== "screen-new-run") return;
     window.soundEngine.playClick();
     window.soundEngine.fadeAndStopMenuMusic(400);
 
@@ -457,30 +531,83 @@ class CelestialGame {
       this.judgeCharacter.root.visible = false;
     }
 
-    // Reset Run Parameters
-    this.lives = window.skillManager.getMaxLives();
+    // Reset Reign Parameters
+    this.reign = window.skillManager.nextReign();
     this.score = 0;
     this.runXP = 0;
     this.streak = 0;
     this.bestStreak = 0;
     this.totalJudged = 0;
-    this.pendingSecondChance = false;
+    this.reignOver = false;
+    this.deathInfo = null;
+    this.lastEnding = null;
+    this.reignHistory = [];
+    this.revealLevel = 0;
+    this.finalWordArmed = false;
     this.isTimeFrozen = false;
     this.timeFreezeRemaining = 0;
+    if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
 
     window.skillManager.resetRunCharges();
+    if (window.meterSystem) {
+      window.meterSystem.setWards?.(window.skillManager.hasMeterWards());
+      window.meterSystem.reset();
+    }
+    window.consequenceEngine?.resetReign?.();
     window.storyDeck.reset();
+    window.swipeController?.reset?.();
 
     if (window.achievementManager) {
       window.achievementManager.emit("RUN_STARTED");
     }
 
     this.showScreen("gameplay-layer");
+    this.applyTimedModeUI();
     this.updateHUD();
     this.renderAbilityBar();
 
     // Spawn first soul
     this.spawnNextSoul();
+  }
+
+  // ==========================================
+  // TIMED MODE (opt-in) & EVENTS
+  // ==========================================
+  loadTimedMode() {
+    try {
+      return localStorage.getItem("celestai_timed") === "1";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  setTimedMode(enabled) {
+    this.timedMode = !!enabled;
+    try {
+      localStorage.setItem("celestai_timed", this.timedMode ? "1" : "0");
+    } catch (e) { /* ignore */ }
+    this.refreshTimedToggle();
+    this.applyTimedModeUI();
+  }
+
+  refreshTimedToggle() {
+    if (!this.dom.settingToggleTimed) return;
+    this.dom.settingToggleTimed.textContent = this.timedMode ? "ON (8s)" : "OFF";
+    this.dom.settingToggleTimed.classList.toggle("active", this.timedMode);
+  }
+
+  applyTimedModeUI() {
+    if (this.dom.timerCircularContainer) {
+      this.dom.timerCircularContainer.classList.toggle("timer-off", !this.timedMode);
+    }
+  }
+
+  dispatch(name, detail) {
+    try {
+      window.dispatchEvent(new CustomEvent(name, { detail }));
+    } catch (e) {
+      console.warn(`[celestai] ${name} listener failed`, e);
+    }
   }
 
   // ==========================================
@@ -528,60 +655,178 @@ class CelestialGame {
     if (this.state !== "JUDGING") return;
     if (!window.skillManager.hasCharge(skillId)) return;
 
-    window.skillManager.useCharge(skillId);
-    this.renderAbilityBar();
-
-    if (window.achievementManager) {
-      window.achievementManager.emit("SKILL_USED", { skillId });
-    }
+    window.achievementManager?.emit("SKILL_USED", { skillId });
 
     const story = this.currentStory;
+    if (!story) return;
+
+    const consume = () => {
+      window.skillManager.useCharge(skillId);
+      this.renderAbilityBar();
+    };
 
     switch (skillId) {
       case "true_sight":
-        window.soundEngine.playAbility();
-        this.showAbilityToast(`👁️ TRUE SIGHT: "${story.hiddenFact}"`, 4500);
-        break;
-
-      case "moral_clarity":
+        consume();
         window.soundEngine.playAbility();
         this.showAbilityToast(
-          `⚖️ MORAL CLARITY: [INTENT: ${story.moralAnalysis.intent}] • [CONSEQUENCES: ${story.moralAnalysis.consequences}]`,
-          4500
+          `👁️ TRUE SIGHT: "${story.hiddenFact || "This soul hides nothing. What you see is all there is."}"`,
+          5000
         );
         break;
+
+      case "moral_clarity": {
+        consume();
+        window.soundEngine.playAbility();
+        this.revealLevel = Math.max(this.revealLevel, 1);
+        const ma = story.moralAnalysis || {};
+        this.showAbilityToast(
+          `⚖️ MORAL CLARITY: [INTENT: ${ma.intent || "UNCLEAR"}] • [CONSEQUENCES: ${ma.consequences || "UNCLEAR"}] — ` +
+            `HEAVEN ${this.describeEffects(story.heaven && story.heaven.effects, false)} | ` +
+            `HELL ${this.describeEffects(story.hell && story.hell.effects, false)}`,
+          6000
+        );
+        break;
+      }
 
       case "double_judgment":
+        consume();
         window.soundEngine.playAbility();
+        this.revealLevel = 2;
         this.showAbilityToast(
-          `⚡ DOUBLE JUDGMENT: [HEAVEN: ${story.heavenDefensibility}%] • [HELL: ${story.hellDefensibility}%]`,
-          4500
+          `⚡ DOUBLE JUDGMENT — HEAVEN: ${this.describeEffects(story.heaven && story.heaven.effects, true)} | ` +
+            `HELL: ${this.describeEffects(story.hell && story.hell.effects, true)}`,
+          6500
         );
+        break;
+
+      case "final_word":
+        consume();
+        window.soundEngine.playAbility();
+        this.finalWordArmed = true;
+        this.showAbilityToast(`📜 FINAL WORD: your next verdict cannot push any meter toward its brink.`, 3500);
         break;
 
       case "time_pause":
-        window.soundEngine.playTimeFreeze();
-        this.freezeTime(3.0);
-        this.showAbilityToast(`⏸️ TIME PAUSED FOR 3 SECONDS`, 2500);
+        if (this.timedMode) {
+          consume();
+          window.soundEngine.playTimeFreeze();
+          this.freezeTime(3.0);
+          this.showAbilityToast(`⏸️ TIME PAUSED FOR 3 SECONDS`, 2500);
+        } else {
+          const eased = this.easeMeters("extreme");
+          if (!eased) {
+            this.showAbilityToast(`⏸️ The scales are already at rest.`, 2000);
+            return;
+          }
+          consume();
+          window.soundEngine.playTimeFreeze();
+          this.showAbilityToast(`⏸️ STILLNESS: ${this.describeEffects(eased, true)} toward balance`, 3000);
+        }
         break;
 
       case "time_dilation":
+        consume();
         window.soundEngine.playAbility();
-        this.timeLeft = Math.min(8.0, this.timeLeft + 3.0);
-        this.timerDuration = Math.max(this.timerDuration, 8.0);
-        this.updateTimerUI();
-        this.showAbilityToast(`⏳ TIME EXTENDED (+3s)`, 2500);
+        if (this.timedMode) {
+          this.timeLeft += 3.0;
+          this.timerDuration = Math.max(this.timerDuration, this.timeLeft);
+          this.updateTimerUI();
+          this.showAbilityToast(`⏳ TIME EXTENDED (+3s)`, 2500);
+        } else {
+          this.showAbilityToast(`⏳ DEFERRAL: ${story.name} is sent back to wait. No verdict, no change.`, 3000);
+          this.deferSoul();
+        }
         break;
 
       case "absolute_judgment":
-        window.soundEngine.playTimeFreeze();
-        this.freezeTime(10.0);
-        this.showAbilityToast(`👑 ABSOLUTE JUDGMENT: TIME HAS STOPPED (10s)`, 3500);
+        if (this.timedMode) {
+          consume();
+          window.soundEngine.playTimeFreeze();
+          this.freezeTime(10.0);
+          this.showAbilityToast(`👑 ABSOLUTE JUDGMENT: TIME HAS STOPPED (10s)`, 3500);
+        } else {
+          const eased = this.easeMeters("all");
+          if (!eased) {
+            this.showAbilityToast(`👑 The scales are already at rest.`, 2000);
+            return;
+          }
+          consume();
+          window.soundEngine.playTimeFreeze();
+          this.showAbilityToast(`👑 ABSOLUTE JUDGMENT: Heaven rebalances ${this.describeEffects(eased, true)}`, 3500);
+        }
         break;
 
       default:
         break;
     }
+
+    // Re-render an active hover preview with the new reveal level
+    if (this.previewSide && this.state === "JUDGING") this.previewDecision(this.previewSide);
+  }
+
+  /** "🕊️↑11 ⚖️↓4" (exact) or "🕊️↑ ⚖️↓" (direction only). */
+  describeEffects(effects, exact) {
+    const parts = [];
+    Object.keys(METER_ICONS).forEach((k) => {
+      const d = Number(effects && effects[k]) || 0;
+      if (!d) return;
+      parts.push(`${METER_ICONS[k]}${d > 0 ? "↑" : "↓"}${exact ? Math.abs(d) : ""}`);
+    });
+    return parts.join(" ") || "no change";
+  }
+
+  /** Untimed authority skills: ease meters toward 50. mode "extreme" (10 pts on the worst) | "all" (halfway). */
+  easeMeters(mode) {
+    const ms = window.meterSystem;
+    if (!ms) return null;
+    const vals = ms.values();
+    const effects = {};
+    if (mode === "extreme") {
+      let key = null;
+      let dev = 0;
+      Object.entries(vals).forEach(([k, v]) => {
+        if (Math.abs(v - 50) > dev) {
+          dev = Math.abs(v - 50);
+          key = k;
+        }
+      });
+      if (!key) return null;
+      const step = Math.min(10, dev);
+      effects[key] = vals[key] > 50 ? -step : step;
+    } else {
+      Object.entries(vals).forEach(([k, v]) => {
+        const d = Math.trunc((50 - v) / 2);
+        if (d) effects[k] = d;
+      });
+      if (!Object.keys(effects).length) return null;
+    }
+    // Moving toward 50 can never cross a brink.
+    const res = ms.apply(effects);
+    this.updateHUD();
+    return res.deltas;
+  }
+
+  /** TIME DILATION (untimed): dismiss the current soul without a verdict. */
+  deferSoul() {
+    this.state = "ENTERING";
+    this.setButtonsDisabled(true);
+    this.previewDecision(null);
+    setTimeout(() => this.spawnNextSoul(), 350);
+  }
+
+  /** Reigns-style preview: dots over the meters this side changes (size only unless revealed by a skill). */
+  previewDecision(side) {
+    const ms = window.meterSystem;
+    if (!ms) return;
+    if (!side || this.state !== "JUDGING" || !this.currentStory) {
+      this.previewSide = null;
+      ms.clearPreview?.();
+      return;
+    }
+    this.previewSide = side;
+    const branch = this.currentStory[side === "HEAVEN" ? "heaven" : "hell"];
+    ms.showPreview?.((branch && branch.effects) || null, this.revealLevel);
   }
 
   freezeTime(seconds) {
@@ -616,20 +861,12 @@ class CelestialGame {
   }
 
   updateHUD() {
-    this.dom.statScore.textContent = this.score;
-    this.dom.statHighScore.textContent = window.skillManager.highScore;
-    this.dom.statStreak.textContent = `🔥 ${this.streak}`;
-
-    const maxLives = window.skillManager.getMaxLives();
-    let heartsHtml = "";
-    for (let i = 0; i < maxLives; i++) {
-      if (i < this.lives) {
-        heartsHtml += `<span class="hud-heart active">♥</span>`;
-      } else {
-        heartsHtml += `<span class="hud-heart lost">♡</span>`;
-      }
-    }
-    this.dom.statLives.innerHTML = heartsHtml;
+    const best = window.skillManager.highScore;
+    if (this.dom.statScore) this.dom.statScore.textContent = this.score;
+    if (this.dom.statBest) this.dom.statBest.textContent = best;
+    if (this.dom.statHighScore) this.dom.statHighScore.textContent = best;
+    if (this.dom.statReign) this.dom.statReign.textContent = `JUDGE #${this.reign || 1}`;
+    window.meterSystem?.renderHUD?.();
   }
 
   showScorePopup(text, isPositive) {
@@ -642,24 +879,31 @@ class CelestialGame {
   }
 
   spawnNextSoul() {
-    if (this.lives <= 0) {
+    if (this.reignOver) {
       this.triggerAngelClimax();
       return;
     }
+    if (this.verdictTimeout) {
+      clearTimeout(this.verdictTimeout);
+      this.verdictTimeout = null;
+    }
+    this.dom.verdictModal.onclick = null;
 
     this.state = "ENTERING";
     this.setButtonsDisabled(true);
     this.environment.resetEffects();
     this.renderer.resetLighting();
     this.hideVerdictModal();
+    this.previewDecision(null);
+    this.revealLevel = 0;
 
-    // Unfreeze time
+    // Reset (optional) timer
     this.isTimeFrozen = false;
     this.timeFreezeRemaining = 0;
-    this.timerDuration = 5.0;
-    this.timeLeft = 5.0;
+    this.timerDuration = SOUL_TIMER_SECONDS;
+    this.timeLeft = SOUL_TIMER_SECONDS;
     this.lastUrgentTick = -1;
-    this.dom.timerBar.classList.remove("frozen");
+    if (this.dom.timerBar) this.dom.timerBar.classList.remove("frozen");
     this.updateTimerUI();
 
     // 1. Remove prior soul model
@@ -668,191 +912,220 @@ class CelestialGame {
       this.currentSoul = null;
     }
 
-    // 2. Obtain pre-generated soul
-    this.currentStory = window.storyDeck.nextStory(this.score);
+    // 2. Obtain next card (selection is owned by StoryDeck / consequence engine)
+    const story = window.storyDeck.nextStory(this.score);
+    if (!story) {
+      console.warn("[celestai] deck returned no card; ending reign");
+      this.reignOver = true;
+      this.triggerAngelClimax();
+      return;
+    }
+    this.currentStory = story;
 
     // 3. Populate Soul Tablet
-    this.dom.soulName.textContent = this.currentStory.name.toUpperCase();
-    this.dom.soulTitle.textContent = this.currentStory.title.toUpperCase();
-    this.dom.soulAge.textContent = `AGE ${this.currentStory.age}`;
-    if (this.dom.soulArchetype) this.dom.soulArchetype.textContent = this.currentStory.archetype.toUpperCase();
-    if (this.dom.storyVirtue) this.dom.storyVirtue.textContent = this.currentStory.virtue;
-    if (this.dom.storySin) this.dom.storySin.textContent = this.currentStory.sin;
-    this.dom.storyDilemma.textContent = `"${this.currentStory.dilemma}"`;
+    const upper = (v) => String(v == null ? "" : v).toUpperCase();
+    this.dom.soulName.textContent = upper(story.name);
+    this.dom.soulTitle.textContent = upper(story.title);
+    this.dom.soulAge.textContent = story.age != null && story.age !== "" ? `AGE ${story.age}` : "";
+    if (this.dom.soulArchetype) this.dom.soulArchetype.textContent = upper(story.archetype);
+    if (this.dom.storyVirtue) this.dom.storyVirtue.textContent = story.virtue || "";
+    if (this.dom.storySin) this.dom.storySin.textContent = story.sin || "";
+    this.dom.storyDilemma.textContent = `"${story.dilemma || ""}"`;
+    if (this.dom.storyCard) this.dom.storyCard.dataset.speaker = story.speaker || "soul";
 
     // Reset button hints (clean, single key)
     this.dom.hintHeaven.textContent = "[A]";
     this.dom.hintHell.textContent = "[D]";
 
     // 4. Create procedural 3D soul
-    this.currentSoul = window.characterFactory.createSoul(this.currentStory.archetype);
+    this.currentSoul = window.characterFactory.createSoul(story.archetype);
     this.renderer.scene.add(this.currentSoul.root);
     this.animator.setSoul(this.currentSoul);
 
     // 5. Play entrance animation
     this.animator.playEntrance(() => {
+      if (this.state !== "ENTERING" || this.currentStory !== story) return;
       this.state = "JUDGING";
       this.soulSpawnTime = Date.now();
       this.setButtonsDisabled(false);
+      this.dispatch("celestai:soul", story);
     });
+  }
+
+  /**
+   * Death rescue perks. Mutates result (deaths/values), returns a note string or null.
+   * FORGIVENESS: first collapse -> collapsing meter(s) back to 50.
+   * IMMORTAL SOUL: next collapse -> all four meters back to 50.
+   */
+  resolveDeaths(result) {
+    const ms = window.meterSystem;
+    if (!ms || !result.deaths || !result.deaths.length) return null;
+    const names = result.deaths.map((d) => d.meter.toUpperCase()).join(" & ");
+
+    if (window.skillManager.hasCharge("forgiveness")) {
+      window.skillManager.useCharge("forgiveness");
+      result.deaths.forEach((d) => ms.set(d.meter, 50));
+      result.saved = result.deaths.map((d) => d.meter);
+      result.deaths = [];
+      result.values = ms.values();
+      window.soundEngine.playAbility();
+      const note = `🕊️ FORGIVENESS: ${names} would have collapsed — restored to 50.`;
+      this.showAbilityToast(note, 3500);
+      return note;
+    }
+
+    if (window.skillManager.hasCharge("immortal_soul")) {
+      window.skillManager.useCharge("immortal_soul");
+      ms.KEYS.forEach((k) => ms.set(k, 50));
+      result.saved = result.deaths.map((d) => d.meter);
+      result.deaths = [];
+      result.values = ms.values();
+      window.soundEngine.playAbility();
+      const note = `🛡️ IMMORTAL SOUL: ${names} collapsed, but the Angels restored every meter to 50.`;
+      this.showAbilityToast(note, 4000);
+      return note;
+    }
+    return null;
+  }
+
+  /** DIVINE INTERVENTION (untimed): first meter in the danger zone is pulled back to 30/70. */
+  maybeDivineIntervention() {
+    const ms = window.meterSystem;
+    if (this.timedMode || !ms || !window.skillManager.hasCharge("divine_intervention")) return null;
+    const vals = ms.values();
+    const key = ms.KEYS.find((k) => vals[k] <= 10 || vals[k] >= 90);
+    if (!key) return null;
+    window.skillManager.useCharge("divine_intervention");
+    ms.set(key, vals[key] <= 10 ? 30 : 70);
+    window.soundEngine.playAbility();
+    const note = `✨ DIVINE INTERVENTION: ${key.toUpperCase()} pulled back from the brink.`;
+    this.showAbilityToast(note, 3500);
+    return note;
   }
 
   handleDecision(decision) {
     if (this.state !== "JUDGING") return;
+    if (decision !== "HEAVEN" && decision !== "HELL") return;
+    const card = this.currentStory;
+    if (!card) return;
+
     this.state = "ANIMATING_RESULT";
     this.setButtonsDisabled(true);
+    this.previewDecision(null);
 
-    const decisionTime = this.soulSpawnTime ? (Date.now() - this.soulSpawnTime) / 1000 : (5.0 - this.timeLeft);
+    const decisionTime = this.soulSpawnTime ? (Date.now() - this.soulSpawnTime) / 1000 : 0;
 
-    // Play judgment sound immediately upon decision, synchronized with button animation & visual effects
-    if (decision === "HEAVEN") {
-      window.soundEngine.playHeaven();
-    } else {
-      window.soundEngine.playHell();
-    }
+    const ms = window.meterSystem;
+    const verdict = window.storyDeck.evaluateDecision(card, decision);
+    const effects = { ...verdict.effects };
 
-    this.totalJudged++;
-
-    // Check FINAL WORD perk
-    const hasFinalWord = window.skillManager.hasCharge("final_word");
-    const evaluation = window.storyDeck.evaluateDecision(this.currentStory, decision, hasFinalWord);
-
-    if (hasFinalWord && evaluation.ratingLabel.includes("FINAL WORD")) {
-      window.skillManager.useCharge("final_word");
-      this.showAbilityToast(`📜 FINAL WORD: Debatable judgment accepted as correct!`, 3000);
-      if (window.achievementManager) {
-        window.achievementManager.emit("LIFE_SAVED", { perk: "final_word" });
-      }
-    }
-
-    const isCorrect = evaluation.isCorrect;
-
-    // Emit event to Achievement Manager
-    if (window.achievementManager) {
-      window.achievementManager.emit("SOUL_JUDGED", {
-        story: this.currentStory,
-        decision,
-        evaluation,
-        timeLeft: this.timeLeft,
-        decisionTime,
-        lives: this.lives,
-        streak: this.streak + (isCorrect ? 1 : 0)
+    // FINAL WORD: cancel every change that would push a meter away from the center
+    const cancelled = [];
+    const wasArmed = this.finalWordArmed;
+    if (this.finalWordArmed && ms) {
+      this.finalWordArmed = false;
+      const cur = ms.values();
+      Object.keys(effects).forEach((k) => {
+        const d = Number(effects[k]) || 0;
+        const v = cur[k] != null ? cur[k] : 50;
+        if (d && Math.abs(v + d - 50) > Math.abs(v - 50)) {
+          cancelled.push(k);
+          delete effects[k];
+        }
       });
     }
 
-    if (isCorrect) {
-      // SUCCESS: +1 Score, +1 XP
-      this.score++;
-      this.runXP++;
-      this.streak++;
-      if (this.streak > this.bestStreak) {
-        this.bestStreak = this.streak;
-      }
-      window.soundEngine.playCorrect();
-      this.showScorePopup("+1 SCORE  +1 XP", true);
+    const snap = ms?.snapshot?.();
+    const result = ms ? ms.apply(effects) : { deltas: {}, deaths: [], warded: [], values: {} };
+
+    // SECOND CHANCE: a fatal verdict is undone entirely (meters restored) and the soul is judged again
+    if (result.deaths.length && snap && window.skillManager.hasCharge("second_chance")) {
+      window.skillManager.useCharge("second_chance");
+      ms.restore(snap);
+      this.finalWordArmed = wasArmed;
+      window.soundEngine.playAbility();
+      this.showAbilityToast(`🔄 SECOND CHANCE: That verdict would have ended your reign. It is undone — judge again.`, 4000);
       this.updateHUD();
+      this.state = "JUDGING";
+      this.setButtonsDisabled(false);
+      this.dispatch("celestai:soul", card);
+      return;
+    }
 
-      // Streak milestone pulse (5, 10, 15...)
-      if (this.streak > 0 && this.streak % 5 === 0) {
-        this.showAbilityToast(`🔥 STREAK MILESTONE: ${this.streak} SOULS IN A ROW! 🔥`, 2200);
-      }
+    const notes = [];
+    if (result.warded && result.warded.length) {
+      notes.push(`❤️ WARD: ${result.warded.map((k) => k.toUpperCase()).join(" & ")} stopped at the brink.`);
+    }
+    const rescue = this.resolveDeaths(result);
+    if (rescue) notes.push(rescue);
+    if (!result.deaths.length) {
+      const divine = this.maybeDivineIntervention();
+      if (divine) notes.push(divine);
+    }
+    if (cancelled.length) notes.push(`📜 FINAL WORD cancelled: ${cancelled.map((k) => k.toUpperCase()).join(", ")}`);
 
-      if (decision === "HEAVEN") {
-        this.triggerHeavenSequence(evaluation);
-      } else {
-        this.triggerHellSequence(evaluation);
-      }
-    } else {
-      // WRONG DECISION: Check perks (Second Chance, Forgiveness, Immortal Soul)
+    // Judgment sound synchronized with the visual sequence
+    if (decision === "HEAVEN") window.soundEngine.playHeaven();
+    else window.soundEngine.playHell();
 
-      // 1. SECOND CHANCE Check
-      if (window.skillManager.hasCharge("second_chance") && !this.pendingSecondChance) {
-        window.skillManager.useCharge("second_chance");
-        this.pendingSecondChance = true;
-        this.renderAbilityBar();
-        window.soundEngine.playAbility();
-        if (window.achievementManager) {
-          window.achievementManager.emit("LIFE_SAVED", { perk: "second_chance" });
-        }
-        this.showAbilityToast(`🔄 SECOND CHANCE: That judgment was incorrect. Choose again!`, 3500);
+    // Every soul judged: +1 score (reign length), +1 XP
+    this.totalJudged++;
+    this.score++;
+    this.runXP++;
+    this.streak = this.score;
+    this.bestStreak = this.score;
 
-        // Allow picking again!
-        this.state = "JUDGING";
-        this.soulSpawnTime = Date.now();
-        this.setButtonsDisabled(false);
-        return;
-      }
+    window.consequenceEngine?.applyChoice?.(card, verdict.side);
+    window.storyDeck.profileTracker.recordDecision(card, decision, result.deltas);
+    this.reignHistory.push({ name: card.name, side: decision });
+    this.dispatch("celestai:verdict", { side: decision, card, deltas: result.deltas });
 
-      this.pendingSecondChance = false;
+    // Achievements: in the meter model every verdict counts; streak = reign length
+    window.achievementManager?.emit("SOUL_JUDGED", {
+      story: card,
+      decision,
+      evaluation: { isCorrect: true, ratingLabel: "" },
+      timeLeft: this.timedMode ? this.timeLeft : 99,
+      decisionTime,
+      lives: null,
+      streak: this.score
+    });
 
-      // 2. FORGIVENESS Check
-      if (window.skillManager.hasCharge("forgiveness")) {
-        window.skillManager.useCharge("forgiveness");
-        this.renderAbilityBar();
-        window.soundEngine.playAbility();
-        if (window.achievementManager) {
-          window.achievementManager.emit("LIFE_SAVED", { perk: "forgiveness" });
-        }
-        this.showAbilityToast(`🕊️ FORGIVEN: Your first transgression is pardoned without penalty.`, 3500);
-
-        evaluation.feedback = "Transgression was forgiven by the Archangel's grace.";
-        this.updateHUD();
-
-        if (decision === "HEAVEN") {
-          this.triggerHeavenSequence(evaluation);
-        } else {
-          this.triggerHellSequence(evaluation);
-        }
-        return;
-      }
-
-      // 3. IMMORTAL SOUL Check (Prevent lethal loss on final life)
-      if (this.lives === 1 && window.skillManager.hasCharge("immortal_soul")) {
-        window.skillManager.useCharge("immortal_soul");
-        this.renderAbilityBar();
-        window.soundEngine.playAbility();
-        if (window.achievementManager) {
-          window.achievementManager.emit("LIFE_SAVED", { perk: "immortal_soul" });
-        }
-        this.showAbilityToast(`🛡️ IMMORTAL SOUL: The Angels have granted you one last chance.`, 4000);
-
-        this.streak = 0;
-        this.updateHUD();
-
-        if (decision === "HEAVEN") {
-          this.triggerHeavenSequence(evaluation);
-        } else {
-          this.triggerHellSequence(evaluation);
-        }
-        return;
-      }
-
-      // Standard life loss
-      this.lives = Math.max(0, this.lives - 1);
-      this.streak = 0;
-      if (window.achievementManager) {
-        window.achievementManager.emit("LIFE_LOST");
-      }
-      window.soundEngine.playLifeLost();
-      this.showScorePopup("WRONG JUDGMENT  -1 LIFE", false);
+    if (result.deaths.length) {
+      this.reignOver = true;
+      this.deathInfo = result.deaths[0];
       this.renderer.shakeIntensity = 0.14;
-      this.updateHUD();
+      window.soundEngine.playLifeLost();
+      this.showScorePopup("THE SCALES BREAK", false);
+    } else {
+      this.showScorePopup("+1 SOUL  +1 XP", true);
+    }
+    this.updateHUD();
 
-      if (decision === "HEAVEN") {
-        this.triggerHeavenSequence(evaluation);
-      } else {
-        this.triggerHellSequence(evaluation);
-      }
+    const evaluation = {
+      decision,
+      card,
+      deltas: result.deltas,
+      deaths: result.deaths,
+      cancelled,
+      notes,
+      feedback: verdict.feedback,
+      quote: verdict.quote
+    };
+
+    if (decision === "HEAVEN") {
+      this.triggerHeavenSequence(evaluation);
+    } else {
+      this.triggerHellSequence(evaluation);
     }
   }
 
   handleTimeout() {
-    if (this.state !== "JUDGING") return;
+    if (this.state !== "JUDGING" || !this.timedMode) return;
 
-    // Check DIVINE INTERVENTION perk
+    // DIVINE INTERVENTION (timed): +3s instead of the hesitation penalty
     if (window.skillManager.hasCharge("divine_intervention")) {
       window.skillManager.useCharge("divine_intervention");
-      this.renderAbilityBar();
       window.soundEngine.playAbility();
       if (window.achievementManager) {
         window.achievementManager.emit("LIFE_SAVED", { perk: "divine_intervention" });
@@ -865,6 +1138,17 @@ class CelestialGame {
 
     this.state = "ANIMATING_RESULT";
     this.setButtonsDisabled(true);
+    this.previewDecision(null);
+
+    const card = this.currentStory;
+    const ms = window.meterSystem;
+    const result = ms ? ms.apply(TIMEOUT_EFFECTS) : { deltas: {}, deaths: [], warded: [], values: {} };
+    const notes = [];
+    if (result.warded && result.warded.length) {
+      notes.push(`❤️ WARD: ${result.warded.map((k) => k.toUpperCase()).join(" & ")} stopped at the brink.`);
+    }
+    const rescue = this.resolveDeaths(result);
+    if (rescue) notes.push(rescue);
 
     if (window.achievementManager) {
       window.achievementManager.emit("TIMER_EXPIRED");
@@ -872,22 +1156,33 @@ class CelestialGame {
     }
 
     this.totalJudged++;
-    this.lives = Math.max(0, this.lives - 1);
-    this.streak = 0;
+    window.soundEngine.playTimeout();
+    window.storyDeck.profileTracker.recordTimeout(result.deltas);
+    this.reignHistory.push({ name: card ? card.name : "Unknown soul", side: "TIMEOUT" });
+    this.dispatch("celestai:verdict", { side: null, timeout: true, card, deltas: result.deltas });
+
+    if (result.deaths.length) {
+      this.reignOver = true;
+      this.deathInfo = result.deaths[0];
+      this.renderer.shakeIntensity = 0.14;
+      window.soundEngine.playLifeLost();
+      this.showScorePopup("THE SCALES BREAK", false);
+    } else {
+      this.showScorePopup("HESITATION  📜↓ 🙏↓", false);
+    }
     this.updateHUD();
 
-    window.soundEngine.playTimeout();
-    this.showScorePopup("-1 LIFE (TIMEOUT)", false);
-    window.storyDeck.profileTracker.recordTimeout();
-
-    const timeoutEvaluation = {
-      score: 0,
-      ratingLabel: "HESITATION PENALTY",
-      isCorrect: false,
-      feedback: "Impartiality in the face of judgment is itself a moral failure. Hesitation costs an innocent soul."
-    };
-
-    this.triggerHellSequence(timeoutEvaluation);
+    this.triggerHellSequence({
+      decision: "HELL",
+      timeout: true,
+      card,
+      deltas: result.deltas,
+      deaths: result.deaths,
+      cancelled: [],
+      notes,
+      feedback: "Hesitation is itself a verdict. The Scribes lose patience and mortals lose faith.",
+      quote: ""
+    });
   }
 
   triggerHeavenSequence(evaluation) {
@@ -916,43 +1211,76 @@ class CelestialGame {
 
   showVerdictPopup(decision, evaluation) {
     this.state = "SHOW_VERDICT";
-    const story = this.currentStory;
-    const isCorrect = evaluation.isCorrect;
+    const ev = evaluation || {};
+    const dying = this.reignOver;
+    const badge = this.dom.verdictBadge;
 
-    if (isCorrect) {
-      this.dom.verdictBadge.textContent = "CORRECT JUDGMENT  +1 SCORE +1 XP";
-      this.dom.verdictBadge.className = "badge-correct";
+    if (dying) {
+      badge.textContent = "⚠ THE SCALES HAVE BROKEN";
+      badge.className = "badge-wrong";
+    } else if (ev.timeout) {
+      badge.textContent = "⌛ HESITATION";
+      badge.className = "badge-wrong";
+    } else if (decision === "HEAVEN") {
+      badge.textContent = "✦ ASCENDED TO HEAVEN · +1 XP";
+      badge.className = "badge-heaven";
     } else {
-      this.dom.verdictBadge.textContent = "WRONG JUDGMENT  -1 LIFE";
-      this.dom.verdictBadge.className = "badge-wrong";
+      badge.textContent = "✦ CAST INTO HELL · +1 XP";
+      badge.className = "badge-hell";
     }
 
-    this.dom.verdictScore.textContent = `${evaluation.ratingLabel} (${evaluation.score}/100)`;
-    this.dom.verdictReasoning.textContent = `"${evaluation.feedback}"`;
-    this.dom.verdictQuote.textContent = story
-      ? `"${decision === "HEAVEN" ? story.heavenQuote : story.hellQuote}"`
-      : "";
+    const ending = dying && this.deathInfo ? (REIGN_ENDINGS[this.deathInfo.meter] || {})[this.deathInfo.dir] : null;
+    this.dom.verdictScore.textContent = ending
+      ? ending.cause.toUpperCase()
+      : String((ev.card && ev.card.name) || "").toUpperCase();
+
+    // Per-meter delta chips
+    if (this.dom.verdictDeltas) {
+      const fatal = new Set((ev.deaths || []).map((d) => d.meter));
+      const cancelled = ev.cancelled || [];
+      let html = "";
+      Object.keys(METER_ICONS).forEach((k) => {
+        const d = Number(ev.deltas && ev.deltas[k]) || 0;
+        if (d) {
+          html += `<span class="delta-chip ${d > 0 ? "up" : "down"}${fatal.has(k) ? " fatal" : ""}">${METER_ICONS[k]} ${d > 0 ? "↑" : "↓"}${Math.abs(d)}</span>`;
+        } else if (cancelled.includes(k)) {
+          html += `<span class="delta-chip cancelled">${METER_ICONS[k]} ✕</span>`;
+        }
+      });
+      this.dom.verdictDeltas.innerHTML = html || `<span class="delta-chip">The scales did not move</span>`;
+    }
+
+    if (this.dom.verdictNote) {
+      const notes = ev.notes || [];
+      this.dom.verdictNote.textContent = notes.join(" ");
+      this.dom.verdictNote.classList.toggle("hidden", notes.length === 0);
+    }
+
+    this.dom.verdictReasoning.textContent = ev.feedback ? `"${ev.feedback}"` : "";
+    this.dom.verdictQuote.textContent = ev.quote ? `"${ev.quote}"` : "";
+    const tapHint = document.getElementById("verdict-tap-hint");
+    if (tapHint) tapHint.textContent = dying ? "Tap to face the Archangel" : "Tap anywhere to summon next soul";
 
     this.dom.verdictModal.classList.add("visible");
 
-    if (this.lives <= 0) {
+    let advanced = false;
+    const advance = () => {
+      if (advanced) return;
+      advanced = true;
       if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
-      this.verdictTimeout = setTimeout(() => {
+      this.verdictTimeout = null;
+      this.dom.verdictModal.onclick = null;
+      if (dying) {
         this.hideVerdictModal();
         this.triggerAngelClimax();
-      }, 1100);
-      return;
-    }
+      } else {
+        this.spawnNextSoul();
+      }
+    };
 
     if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
-    this.verdictTimeout = setTimeout(() => {
-      this.spawnNextSoul();
-    }, 1050);
-
-    this.dom.verdictModal.onclick = () => {
-      if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
-      this.spawnNextSoul();
-    };
+    this.verdictTimeout = setTimeout(advance, dying ? 3200 : 2400);
+    this.dom.verdictModal.onclick = advance;
   }
 
   hideVerdictModal() {
@@ -1008,9 +1336,14 @@ class CelestialGame {
   // ARCHANGEL CLIMAX SEQUENCE
   // ==========================================
   triggerAngelClimax() {
+    if (this.state === "ANGEL_SEQUENCE" || this.state === "RESULTS") return;
     this.state = "ANGEL_SEQUENCE";
+    if (this.verdictTimeout) clearTimeout(this.verdictTimeout);
+    this.verdictTimeout = null;
+    this.dom.verdictModal.onclick = null;
     this.hideVerdictModal();
     this.setButtonsDisabled(true);
+    this.previewDecision(null);
 
     if (window.achievementManager) {
       window.achievementManager.emit("ANGEL_JUDGMENT");
@@ -1020,6 +1353,9 @@ class CelestialGame {
       this.renderer.scene.remove(this.currentSoul.root);
       this.currentSoul = null;
     }
+
+    // Hide the gameplay HUD/card so it doesn't bleed through the tribunal overlay
+    this.dom.screens.gameplayLayer.classList.add("hidden");
 
     this.renderer.triggerAngelLighting();
     this.environment.resetEffects();
@@ -1033,28 +1369,71 @@ class CelestialGame {
 
     window.soundEngine.playAngelIntro();
 
-    const profile = window.storyDeck.profileTracker.getProfile();
-    const destiny = window.storyDeck.profileTracker.calculatePlayerDestiny(this.score);
+    const meters = window.meterSystem ? window.meterSystem.values() : {};
+    const death = this.deathInfo;
+    const ending = death ? (REIGN_ENDINGS[death.meter] || {})[death.dir] || null : null;
+    this.lastEnding = ending;
 
-    this.runAngelDialogueSequence(profile, destiny);
+    const summary = {
+      reign: this.reign,
+      soulsJudged: this.score,
+      deathMeter: death ? death.meter : null,
+      deathDir: death ? death.dir : null,
+      meters,
+      history: this.reignHistory.slice(-12)
+    };
+    this.dispatch("celestai:run-end", summary);
+
+    // Archangel reflection: AI first (self-times-out), static fallback
+    let tribunal = Promise.resolve(null);
+    try {
+      const p = window.aiSouls?.tribunal?.(summary);
+      if (p && typeof p.then === "function") {
+        tribunal = Promise.race([
+          p.catch(() => null),
+          new Promise((resolve) => setTimeout(() => resolve(null), 6000))
+        ]);
+      }
+    } catch (e) {
+      tribunal = Promise.resolve(null);
+    }
+
+    const profile = window.storyDeck.profileTracker.getProfile();
+    const destiny = window.storyDeck.profileTracker.calculatePlayerDestiny(this.score, meters, death ? death.meter : null);
+
+    this.runAngelDialogueSequence(profile, destiny, ending, tribunal);
   }
 
-  runAngelDialogueSequence(profile, destiny) {
+  runAngelDialogueSequence(profile, destiny, ending, tribunal) {
     const screen = this.dom.screens.angelScreen;
     const dialogueBox = this.dom.angelDialogueContent;
     const destinyBox = this.dom.angelDestinyContainer;
     const destinyBanner = this.dom.angelDestinyBanner;
     const tapHint = this.dom.angelTapHint;
 
+    const setBeat = (text) => {
+      dialogueBox.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "beat-text";
+      p.textContent = text;
+      dialogueBox.appendChild(p);
+    };
+
     dialogueBox.innerHTML = "";
     destinyBox.classList.add("hidden");
     screen.classList.add("visible");
     tapHint.classList.remove("hidden");
+    if (this.dom.angelEndingTitle) {
+      this.dom.angelEndingTitle.textContent = ending ? ending.title : "";
+      this.dom.angelEndingTitle.classList.toggle("hidden", !ending);
+    }
 
+    const n = this.score;
+    const staticReflection = `In your court, you consistently valued ${profile.dominantTrait}. ${profile.reflection}`;
     const beats = [
-      `"You have judged ${this.totalJudged} souls with a final score of ${this.score}."`,
-      `"In your court, you consistently valued ${profile.dominantTrait}."`,
-      `"${profile.reflection}"`,
+      `"Judge #${this.reign || 1}. You weighed ${n} ${n === 1 ? "soul" : "souls"} before ${ending ? ending.cause.toLowerCase() : "the scales fell silent"}."`,
+      ending ? `"${ending.text}"` : `"${profile.reflection}"`,
+      { pending: tribunal || Promise.resolve(null), fallback: staticReflection },
       `"Now... it is your turn."`
     ];
 
@@ -1065,22 +1444,33 @@ class CelestialGame {
       if (isRevealing) return;
 
       if (currentBeat < beats.length) {
-        dialogueBox.innerHTML = `<p class="beat-text">${beats[currentBeat]}</p>`;
-        window.soundEngine.playClick();
+        const beat = beats[currentBeat];
         currentBeat++;
+        window.soundEngine.playClick();
+        if (typeof beat === "string") {
+          setBeat(beat);
+        } else {
+          isRevealing = true;
+          setBeat("The Archangel weighs your reign...");
+          beat.pending
+            .then((text) => text, () => null)
+            .then((text) => {
+              const line = (typeof text === "string" && text.trim()) || beat.fallback;
+              setBeat(`"${line.replace(/^"+|"+$/g, "")}"`);
+              isRevealing = false;
+            });
+        }
       } else if (currentBeat === beats.length) {
         // Angel delivers final judgment line
-        dialogueBox.innerHTML = `<p class="beat-text">"The scales have weighed your own conscience."</p>`;
+        setBeat(`"The scales have weighed your own conscience."`);
         tapHint.classList.add("hidden");
         isRevealing = true;
         currentBeat++;
 
         // Short dramatic pause (550ms) before final audio & reveal
         setTimeout(() => {
-          // Play final.mp3 at the dramatic reveal moment
           window.soundEngine.playFinal();
 
-          // Synchronize reveal with audio swell
           setTimeout(() => {
             destinyBox.classList.remove("hidden");
             destinyBanner.textContent = destiny;
@@ -1099,6 +1489,7 @@ class CelestialGame {
         }, 550);
       } else {
         // Transition to Run Results Screen
+        screen.onclick = null;
         screen.classList.remove("visible");
         this.openRunResultsScreen(profile);
       }
@@ -1127,10 +1518,28 @@ class CelestialGame {
       this.animator.setAngel(null);
     }
 
-    // Save stats and grant XP
+    // Save stats and grant XP (score = souls judged this reign)
     const isNewHighScore = this.score > window.skillManager.highScore;
     const levelResult = window.skillManager.addXP(this.runXP);
     window.skillManager.recordRunStats(this.score, this.totalJudged, this.bestStreak);
+
+    // Cause of fall
+    const ending = this.lastEnding;
+    if (this.dom.resultsTitle) {
+      this.dom.resultsTitle.textContent = `JUDGE #${this.reign || 1} HAS FALLEN`;
+    }
+    if (this.dom.resultsCause) {
+      this.dom.resultsCause.textContent = ending
+        ? `CAUSE OF FALL: ${ending.cause.toUpperCase()} — ${ending.title}`
+        : "";
+    }
+    if (this.dom.resultsMeters && window.meterSystem) {
+      const vals = window.meterSystem.values();
+      const dead = this.deathInfo ? this.deathInfo.meter : null;
+      this.dom.resultsMeters.innerHTML = window.meterSystem.METERS.map(
+        (m) => `<span class="${m.key === dead ? "dead" : ""}" title="${m.label}">${m.icon} ${vals[m.key]}</span>`
+      ).join("");
+    }
 
     // Populate Results Screen
     this.dom.resultsScore.textContent = this.score;
@@ -1277,6 +1686,7 @@ class CelestialGame {
     this.dom.settingToggleSound.classList.toggle("active", window.soundEngine.enabled);
     this.dom.settingToggleMusic.textContent = window.soundEngine.musicEnabled ? "ENABLED" : "MUTED";
     this.dom.settingToggleMusic.classList.toggle("active", window.soundEngine.musicEnabled);
+    this.refreshTimedToggle();
   }
 
   // ==========================================
@@ -1289,12 +1699,13 @@ class CelestialGame {
       const time = this.clock.getElapsedTime();
 
       // Countdown Timer during JUDGING phase
-      if (this.state === "JUDGING") {
+      if (this.state === "JUDGING" && this.timedMode) {
         if (this.isTimeFrozen) {
           this.timeFreezeRemaining -= delta;
           if (this.timeFreezeRemaining <= 0) {
             this.isTimeFrozen = false;
-            this.dom.timerBar.classList.remove("frozen");
+            if (this.dom.timerBar) this.dom.timerBar.classList.remove("frozen");
+            this.updateTimerUI();
           }
         } else {
           this.timeLeft -= delta;
