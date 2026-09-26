@@ -13,6 +13,7 @@
   var METERS = ["mercy", "justice", "order", "faith"];
   var ARCHETYPES = ["doctor", "soldier", "businessman", "farmer", "thief", "artist", "scientist", "chef", "king", "astronaut"];
   var QUEUE_MAX = 6;
+  var themeSeq = Math.floor(Math.random() * 1000);
   var available = false;
   var queue = [];
   var inflight = 0;
@@ -131,7 +132,8 @@
       var body = safeCtx(ctx);
       while (queue.length + inflight < QUEUE_MAX) {
         inflight++;
-        post("/api/soul", body, 25000).then(function (data) {
+        themeSeq++;
+        post("/api/soul", Object.assign({}, body, { variant: themeSeq }), 25000).then(function (data) {
           inflight--;
           var card = data && validate(data.card);
           if (card) { failures = 0; if (queue.length < QUEUE_MAX) queue.push(card); }

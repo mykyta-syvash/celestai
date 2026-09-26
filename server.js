@@ -86,6 +86,8 @@ function describeCtx(ctx) {
   return { meters, extreme, dir: meters[extreme] >= 50 ? "high" : "low", flags, recent, souls };
 }
 
+const THEMES = ["a gym bro", "a TikTok influencer", "a grandma who cheated at bingo", "a school cafeteria lady", "a pro gamer who rage-quit life", "a fake psychic", "a wedding DJ", "a mall Santa", "a pigeon-feeding old man", "a hall monitor with too much power", "a YouTube prank channel host", "a dentist who loved candy", "a pizza delivery guy", "a substitute teacher", "a reality TV contestant", "a karaoke champion", "an ice-cream truck driver", "a parking enforcement officer", "a conspiracy uncle", "a kid's birthday party clown", "a speedrunner", "a lunch-stealing coworker", "a llama farmer", "a failed rapper", "a neighborhood HOA president", "a magician who lost the rabbit", "a vending machine repairman", "a competitive eater", "a professional cuddler", "an AI chatbot that became a soul"];
+
 function soulPrompt(ctx) {
   const d = describeCtx(ctx);
   const tier = d.souls < 6 ? 1 : d.souls < 16 ? 2 : 3;
@@ -109,6 +111,7 @@ function soulPrompt(ctx) {
           ? `STORYLINE — verdicts so far this reign (oldest first): ${ctx.history.slice(-8).map((h) => `${String(h.name).slice(0, 60)} → ${h.side === "HELL" ? "HELL" : "HEAVEN"}`).join("; ")}. ` +
             `About 60% of the time, make this new soul DIRECTLY connected to one of those earlier souls (their spouse, victim, accomplice, rival, pet, landlord, the person who wrote their bad Yelp review...) and have the dilemma and quotes openly react to the verdict that soul got. Mention the earlier soul by name. `
           : "") +
+        `If this soul is NOT connected to an earlier one, make it ${THEMES[Math.abs(Number(ctx.variant) || 0) % THEMES.length]}. Never write another cat hoarder or crypto bro. ` +
         `Souls judged so far: ${d.souls}.`
     }
   ];
