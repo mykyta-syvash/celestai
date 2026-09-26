@@ -541,6 +541,12 @@
   <audio id="sfx-final" preload="auto" src="audio/final.mp3"></audio>
 
   <!-- Game Scripts -->
+  <script>
+    // Remote AI backend (Railway) when not served by server.js itself
+    if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && !/railway\.app$/.test(location.hostname)) {
+      window.CELESTAI_API_BASE = "https://celestai-production.up.railway.app";
+    }
+  </script>
   <script src="js/audio.js"></script>
   <script src="js/cards/deck.js"></script>
   <script src="js/cards/chains.js"></script>

@@ -30,7 +30,7 @@
     });
     var req;
     try {
-      req = fetch(url, Object.assign({}, opts || {}, ctrl ? { signal: ctrl.signal } : {}))
+      req = fetch((window.CELESTAI_API_BASE || "") + url, Object.assign({}, opts || {}, ctrl ? { signal: ctrl.signal } : {}))
         .then(function (r) { return r.ok ? r.json() : null; })
         .catch(function () { return null; });
     } catch (e) {
@@ -150,7 +150,7 @@
   }
 
   // One-time availability probe (2s timeout). Only works when served by server.js with OPENAI_API_KEY.
-  var ready = (typeof fetch === "function" && typeof location !== "undefined" && /^https?:$/.test(location.protocol))
+  var ready = (typeof fetch === "function" && typeof location !== "undefined" && (/^https?:$/.test(location.protocol) || window.CELESTAI_API_BASE))
     ? fetchJson("/api/health", { cache: "no-store" }, 2000).then(function (d) { available = !!(d && d.ai === true); return available; })
     : Promise.resolve(false);
 

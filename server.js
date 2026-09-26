@@ -184,6 +184,11 @@ function serveStatic(req, res) {
 
 const server = http.createServer((req, res) => {
   const { pathname } = new URL(req.url, "http://x");
+  // CORS so the static build on itch.io can call this backend
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
   if (pathname === "/api/health" && req.method === "GET") return sendJson(res, 200, { ai: !!API_KEY, model: API_KEY ? MODEL : null });
   if (pathname === "/api/soul" && req.method === "POST") return void handleSoul(req, res);
   if (pathname === "/api/tribunal" && req.method === "POST") return void handleTribunal(req, res);
