@@ -683,7 +683,7 @@ class AchievementManager {
   getBranchUnlockedCount(branch) {
     if (!window.skillManager) return 0;
     const branchSkills = Object.values(SKILLS_DATA).filter((s) => s.branch === branch);
-    return branchSkills.filter((s) => window.skillManager.unlockedSkills.includes(s.id)).length;
+    return branchSkills.filter((s) => window.skillManager.isUnlocked(s.id)).length;
   }
 
   unlock(id) {
