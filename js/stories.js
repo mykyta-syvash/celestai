@@ -533,59 +533,130 @@ class MoralProfileTracker {
 // ==========================================
 class StoryDeck {
   constructor() {
-    this.allCases = [...MORAL_CASES];
     this.profileTracker = new MoralProfileTracker();
     this.usedIds = new Set();
+    this.recentIds = [];
     this.nextPreparedSoul = null;
+    this.preparedAt = null;
+    this.soulsServed = 0;
+    this.fallbackCase = {
+      id: "fallback_soul", tier: 1, archetype: "farmer", name: "Nameless Wanderer", age: 40, title: "Lost Soul",
+      dilemma: "A quiet life, neither cruel nor kind. The ledger is nearly blank.",
+      virtue: "Never harmed anyone on purpose.", sin: "Never helped anyone either.",
+      once: false,
+      heaven: { effects: { mercy: 5, justice: -5 }, feedback: "A gentle verdict for a gentle nobody.", quote: "Thank you... I think." },
+      hell: { effects: { justice: 5, mercy: -5 }, feedback: "Indifference judged harshly.", quote: "I did nothing wrong!" }
+    };
+    this.prefetchNext();
+  }
 
-    // Pre-generate initial soul
-    this.prefetchNext(0);
+  /** Card source: window.CELESTAI_CARDS (deck.js + chains.js + generated.js). */
+  get allCases() {
+    const cards = Array.isArray(window.CELESTAI_CARDS) ? window.CELESTAI_CARDS : [];
+    return cards.length ? cards : [this.fallbackCase];
   }
 
   reset() {
     this.usedIds.clear();
+    this.recentIds = [];
+    this.soulsServed = 0;
     this.profileTracker.reset();
+    window.consequenceEngine?.resetReign?.();
     this.nextPreparedSoul = null;
-    this.prefetchNext(0);
+    this.preparedAt = null;
+    this.prefetchNext();
   }
 
-  getTierCases(currentScore) {
-    let tier = 1;
-    if (currentScore >= 9) {
-      tier = 3;
-    } else if (currentScore >= 4) {
-      tier = 2;
-    }
-
-    let cases = this.allCases.filter((c) => c.tier === tier && !this.usedIds.has(c.id));
-    if (cases.length === 0) {
-      cases = this.allCases.filter((c) => !this.usedIds.has(c.id));
-    }
-    if (cases.length === 0) {
-      this.usedIds.clear();
-      cases = this.allCases.filter((c) => c.tier === tier);
-    }
-    return cases;
+  /** Selection context, computed at call time (never assumed from a stale score). */
+  buildContext() {
+    const judged = window.consequenceEngine?.soulsJudged?.();
+    return {
+      meters: window.meterSystem?.values?.() || {},
+      flags: window.consequenceEngine?.flags?.() || [],
+      soulsJudged: typeof judged === "number" ? Math.max(judged, this.soulsServed) : this.soulsServed,
+      recentIds: this.recentIds.slice(-6)
+    };
   }
 
-  prefetchNext(currentScore) {
-    const candidates = this.getTierCases(currentScore);
-    const chosen = candidates[Math.floor(Math.random() * candidates.length)] || this.allCases[0];
-    this.nextPreparedSoul = chosen;
-    return chosen;
+  /** Legacy tier filter (fallback only); real selection goes through consequenceEngine.pick. */
+  getTierCases(soulsJudged) {
+    const ctx = this.buildContext();
+    const souls = typeof soulsJudged === "number" ? soulsJudged : ctx.soulsJudged;
+    const tier = souls >= 10 ? 3 : souls >= 4 ? 2 : 1;
+    const engine = window.consequenceEngine;
+    const ok = (c) => (engine?.isEligible ? engine.isEligible(c, ctx) : !this.usedIds.has(c.id));
+    let cases = this.allCases.filter((c) => c.tier === tier && ok(c));
+    if (cases.length === 0) cases = this.allCases.filter(ok);
+    if (cases.length === 0) cases = this.allCases.filter((c) => c.once === false || !this.usedIds.has(c.id));
+    if (cases.length === 0) cases = this.allCases.filter((c) => !c.requires);
+    return cases.length ? cases : this.allCases;
   }
 
-  nextStory(currentScore = 0) {
-    let story = this.nextPreparedSoul;
+  pickCard(ctx) {
+    let card = null;
+    try {
+      card = window.consequenceEngine?.pick?.(this.allCases, ctx) || null;
+    } catch (e) {
+      console.warn("[StoryDeck] consequenceEngine.pick failed", e);
+    }
+    if (!card) {
+      const cases = this.getTierCases(ctx.soulsJudged);
+      card = cases[Math.floor(Math.random() * cases.length)];
+    }
+    return card || this.fallbackCase;
+  }
+
+  stateKey(ctx) {
+    return ctx.soulsJudged + "|" + ctx.flags.join(",");
+  }
+
+  /** Prepares a soul for the CURRENT state; nextStory re-picks if the state changed since. */
+  prefetchNext() {
+    const ctx = this.buildContext();
+    this.nextPreparedSoul = this.pickCard(ctx);
+    this.preparedAt = this.stateKey(ctx);
+    return this.nextPreparedSoul;
+  }
+
+  takeAiSoul() {
+    try {
+      const card = window.aiSouls?.take?.();
+      if (card && card.id && card.name && card.archetype && card.heaven && card.hell) return card;
+    } catch (e) {
+      /* AI souls are optional */
+    }
+    return null;
+  }
+
+  nextStory() {
+    const ctx = this.buildContext();
+    let story = null;
+
+    // Every ~3rd soul, try an AI-generated soul.
+    if ((this.soulsServed + 1) % 3 === 0) story = this.takeAiSoul();
+
     if (!story) {
-      story = this.prefetchNext(currentScore);
+      const prepared = this.nextPreparedSoul;
+      const engine = window.consequenceEngine;
+      const stillValid =
+        prepared && this.preparedAt === this.stateKey(ctx) && (!engine?.isEligible || engine.isEligible(prepared, ctx));
+      story = stillValid ? prepared : this.pickCard(ctx);
     }
-    this.usedIds.add(story.id);
 
-    // Immediately prefetch the NEXT soul in background!
-    setTimeout(() => {
-      this.prefetchNext(currentScore + 1);
-    }, 10);
+    this.nextPreparedSoul = null;
+    this.preparedAt = null;
+    this.soulsServed++;
+    this.usedIds.add(story.id);
+    this.recentIds.push(story.id);
+    if (this.recentIds.length > 12) this.recentIds.shift();
+    window.consequenceEngine?.markShown?.(story);
+
+    // Warm the AI queue with the context at call time.
+    try {
+      window.aiSouls?.prefetch?.(this.buildContext());
+    } catch (e) {
+      /* optional */
+    }
 
     return story;
   }
