@@ -69,7 +69,8 @@ class CelestialGame {
         runResults: document.getElementById("screen-run-results"),
         skillTree: document.getElementById("screen-skill-tree"),
         highScore: document.getElementById("screen-high-score"),
-        settings: document.getElementById("screen-settings")
+        settings: document.getElementById("screen-settings"),
+        achievements: document.getElementById("screen-achievements")
       },
 
       // Overlays
@@ -174,7 +175,15 @@ class CelestialGame {
       settingToggleSound: document.getElementById("setting-toggle-sound"),
       settingToggleMusic: document.getElementById("setting-toggle-music"),
       settingBtnReset: document.getElementById("setting-btn-reset"),
-      btnSettingsBack: document.getElementById("btn-settings-back")
+      btnSettingsBack: document.getElementById("btn-settings-back"),
+
+      // Achievements Screen Elements
+      menuBtnAchievements: document.getElementById("menu-btn-achievements"),
+      menuAchievementsCount: document.getElementById("menu-achievements-count"),
+      btnAchievementsBack: document.getElementById("btn-achievements-back"),
+      achievementsProgressCount: document.getElementById("achievements-progress-count"),
+      achievementsProgressBar: document.getElementById("achievements-progress-bar"),
+      achievementsCardsContainer: document.getElementById("achievements-cards-container")
     };
   }
 
@@ -191,11 +200,34 @@ class CelestialGame {
     });
     this.dom.menuBtnSkills.addEventListener("click", () => this.openSkillTreeScreen());
     this.dom.menuBtnHighScore.addEventListener("click", () => this.openHighScoreScreen());
+    if (this.dom.menuBtnAchievements) {
+      this.dom.menuBtnAchievements.addEventListener("click", () => this.openAchievementsScreen());
+    }
     this.dom.menuBtnSettings.addEventListener("click", () => this.openSettingsScreen());
 
     // Pre-Run Screen Buttons
     this.dom.btnBeginRun.addEventListener("click", () => this.startRun());
     this.dom.btnNewRunBack.addEventListener("click", () => this.showScreen("screen-main-menu"));
+
+    // Achievements Screen Listeners
+    if (this.dom.btnAchievementsBack) {
+      this.dom.btnAchievementsBack.addEventListener("click", () => {
+        window.soundEngine.playClick();
+        this.showScreen("screen-main-menu");
+      });
+    }
+
+    document.querySelectorAll(".achievement-tabs .ach-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".achievement-tabs .ach-tab").forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        window.soundEngine.playClick();
+        const cat = tab.dataset.category;
+        if (window.achievementManager) {
+          window.achievementManager.setCategoryFilter(cat);
+        }
+      });
+    });
 
     // In-Game Decision Buttons
     this.dom.btnHeaven.addEventListener("mouseenter", () => window.soundEngine.playHover());
@@ -334,9 +366,18 @@ class CelestialGame {
       "screen-new-run",
       "screen-skill-tree",
       "screen-high-score",
-      "screen-settings"
+      "screen-settings",
+      "screen-achievements"
     ];
     return menuScreens.includes(this.currentScreen);
+  }
+
+  openAchievementsScreen() {
+    window.soundEngine.playClick();
+    this.showScreen("screen-achievements");
+    if (window.achievementManager) {
+      window.achievementManager.renderScreen();
+    }
   }
 
   refreshProgressionUI() {
@@ -356,6 +397,11 @@ class CelestialGame {
     const menuBestScore = document.getElementById("menu-best-score");
     if (menuBestScore) {
       menuBestScore.textContent = `BEST: ${window.skillManager.highScore}`;
+    }
+
+    // Dynamic Achievements Unlocked Count on Menu
+    if (window.achievementManager) {
+      window.achievementManager.updateMenuBadge();
     }
 
     // Tree Header
@@ -425,6 +471,10 @@ class CelestialGame {
     window.skillManager.resetRunCharges();
     window.storyDeck.reset();
 
+    if (window.achievementManager) {
+      window.achievementManager.emit("RUN_STARTED");
+    }
+
     this.showScreen("gameplay-layer");
     this.updateHUD();
     this.renderAbilityBar();
@@ -480,6 +530,10 @@ class CelestialGame {
 
     window.skillManager.useCharge(skillId);
     this.renderAbilityBar();
+
+    if (window.achievementManager) {
+      window.achievementManager.emit("SKILL_USED", { skillId });
+    }
 
     const story = this.currentStory;
 
@@ -638,6 +692,7 @@ class CelestialGame {
     // 5. Play entrance animation
     this.animator.playEntrance(() => {
       this.state = "JUDGING";
+      this.soulSpawnTime = Date.now();
       this.setButtonsDisabled(false);
     });
   }
@@ -646,6 +701,8 @@ class CelestialGame {
     if (this.state !== "JUDGING") return;
     this.state = "ANIMATING_RESULT";
     this.setButtonsDisabled(true);
+
+    const decisionTime = this.soulSpawnTime ? (Date.now() - this.soulSpawnTime) / 1000 : (5.0 - this.timeLeft);
 
     // Play judgment sound immediately upon decision, synchronized with button animation & visual effects
     if (decision === "HEAVEN") {
@@ -663,9 +720,25 @@ class CelestialGame {
     if (hasFinalWord && evaluation.ratingLabel.includes("FINAL WORD")) {
       window.skillManager.useCharge("final_word");
       this.showAbilityToast(`📜 FINAL WORD: Debatable judgment accepted as correct!`, 3000);
+      if (window.achievementManager) {
+        window.achievementManager.emit("LIFE_SAVED", { perk: "final_word" });
+      }
     }
 
     const isCorrect = evaluation.isCorrect;
+
+    // Emit event to Achievement Manager
+    if (window.achievementManager) {
+      window.achievementManager.emit("SOUL_JUDGED", {
+        story: this.currentStory,
+        decision,
+        evaluation,
+        timeLeft: this.timeLeft,
+        decisionTime,
+        lives: this.lives,
+        streak: this.streak + (isCorrect ? 1 : 0)
+      });
+    }
 
     if (isCorrect) {
       // SUCCESS: +1 Score, +1 XP
@@ -698,10 +771,14 @@ class CelestialGame {
         this.pendingSecondChance = true;
         this.renderAbilityBar();
         window.soundEngine.playAbility();
+        if (window.achievementManager) {
+          window.achievementManager.emit("LIFE_SAVED", { perk: "second_chance" });
+        }
         this.showAbilityToast(`🔄 SECOND CHANCE: That judgment was incorrect. Choose again!`, 3500);
 
         // Allow picking again!
         this.state = "JUDGING";
+        this.soulSpawnTime = Date.now();
         this.setButtonsDisabled(false);
         return;
       }
@@ -713,6 +790,9 @@ class CelestialGame {
         window.skillManager.useCharge("forgiveness");
         this.renderAbilityBar();
         window.soundEngine.playAbility();
+        if (window.achievementManager) {
+          window.achievementManager.emit("LIFE_SAVED", { perk: "forgiveness" });
+        }
         this.showAbilityToast(`🕊️ FORGIVEN: Your first transgression is pardoned without penalty.`, 3500);
 
         evaluation.feedback = "Transgression was forgiven by the Archangel's grace.";
@@ -731,6 +811,9 @@ class CelestialGame {
         window.skillManager.useCharge("immortal_soul");
         this.renderAbilityBar();
         window.soundEngine.playAbility();
+        if (window.achievementManager) {
+          window.achievementManager.emit("LIFE_SAVED", { perk: "immortal_soul" });
+        }
         this.showAbilityToast(`🛡️ IMMORTAL SOUL: The Angels have granted you one last chance.`, 4000);
 
         this.streak = 0;
@@ -747,6 +830,9 @@ class CelestialGame {
       // Standard life loss
       this.lives = Math.max(0, this.lives - 1);
       this.streak = 0;
+      if (window.achievementManager) {
+        window.achievementManager.emit("LIFE_LOST");
+      }
       window.soundEngine.playLifeLost();
       this.showScorePopup("WRONG JUDGMENT  -1 LIFE", false);
       this.renderer.shakeIntensity = 0.14;
@@ -768,6 +854,9 @@ class CelestialGame {
       window.skillManager.useCharge("divine_intervention");
       this.renderAbilityBar();
       window.soundEngine.playAbility();
+      if (window.achievementManager) {
+        window.achievementManager.emit("LIFE_SAVED", { perk: "divine_intervention" });
+      }
       this.timeLeft = 3.0;
       this.updateTimerUI();
       this.showAbilityToast(`✨ DIVINE INTERVENTION: +3 SECONDS GRANTED`, 3000);
@@ -776,6 +865,11 @@ class CelestialGame {
 
     this.state = "ANIMATING_RESULT";
     this.setButtonsDisabled(true);
+
+    if (window.achievementManager) {
+      window.achievementManager.emit("TIMER_EXPIRED");
+      window.achievementManager.emit("LIFE_LOST");
+    }
 
     this.totalJudged++;
     this.lives = Math.max(0, this.lives - 1);
@@ -917,6 +1011,10 @@ class CelestialGame {
     this.state = "ANGEL_SEQUENCE";
     this.hideVerdictModal();
     this.setButtonsDisabled(true);
+
+    if (window.achievementManager) {
+      window.achievementManager.emit("ANGEL_JUDGMENT");
+    }
 
     if (this.currentSoul) {
       this.renderer.scene.remove(this.currentSoul.root);

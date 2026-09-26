@@ -39,6 +39,9 @@
     <!-- Floating In-Game Ability Toast Banner -->
     <div id="ability-toast" class="ability-toast"></div>
 
+    <!-- Achievement Unlock Toast Container -->
+    <div id="achievement-toast-container" class="achievement-toast-container"></div>
+
     <!-- ==========================================
          SCREEN 1: MAIN MENU (CELESTAI)
          ========================================== -->
@@ -108,6 +111,15 @@
               <div class="plaque-content">
                 <span class="plaque-title-main">HIGH SCORE</span>
                 <span id="menu-best-score" class="plaque-subtitle">BEST: 0</span>
+              </div>
+            </button>
+
+            <!-- Achievements Plaque -->
+            <button id="menu-btn-achievements" class="stone-plaque-btn" type="button">
+              <span class="plaque-icon">🏅</span>
+              <div class="plaque-content">
+                <span class="plaque-title-main">ACHIEVEMENTS</span>
+                <span id="menu-achievements-count" class="plaque-subtitle">0 / 50</span>
               </div>
             </button>
           </div>
@@ -465,6 +477,46 @@
       </div>
     </div>
 
+    <!-- ==========================================
+         SCREEN 9: ACHIEVEMENTS
+         ========================================== -->
+    <div id="screen-achievements" class="game-screen">
+      <div class="subscreen-container achievements-container">
+        <div class="subscreen-header achievements-header">
+          <div class="subscreen-title">ACHIEVEMENTS</div>
+          <div class="subscreen-subtitle">Your Eternal Deeds & Triumphs</div>
+
+          <div class="achievements-progress-card">
+            <div class="ach-prog-info">
+              <span id="achievements-progress-count" class="ach-prog-main">0 / 50 UNLOCKED</span>
+            </div>
+            <div class="ach-prog-track">
+              <div id="achievements-progress-bar" class="ach-prog-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="achievement-tabs">
+          <button class="ach-tab active" data-category="ALL" type="button">✦ ALL</button>
+          <button class="ach-tab" data-category="JUDGMENT" type="button">✦ JUDGMENT</button>
+          <button class="ach-tab" data-category="STREAK & SPEED" type="button">✦ STREAK & SPEED</button>
+          <button class="ach-tab" data-category="SURVIVAL" type="button">✦ SURVIVAL</button>
+          <button class="ach-tab" data-category="SKILLS" type="button">✦ SKILLS</button>
+          <button class="ach-tab" data-category="SPECIAL" type="button">✦ SPECIAL</button>
+        </div>
+
+        <!-- Cards Scrollable Grid -->
+        <div id="achievements-cards-container" class="achievements-cards-scroll">
+          <!-- Injected dynamically by achievements.js -->
+        </div>
+
+        <div class="subscreen-footer">
+          <button id="btn-achievements-back" class="btn-main-action" type="button">← BACK TO MENU</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Preloaded Game Audio Elements -->
@@ -477,6 +529,7 @@
   <script src="js/audio.js"></script>
   <script src="js/stories.js"></script>
   <script src="js/skills.js"></script>
+  <script src="js/achievements.js"></script>
   <script src="js/character.js"></script>
   <script src="js/environment.js"></script>
   <script src="js/animator.js"></script>

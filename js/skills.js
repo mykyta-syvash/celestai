@@ -260,6 +260,9 @@ class SkillTreeManager {
     this.availableXP -= skill.cost;
     this.unlockedSkills.add(skillId);
     this.save();
+    if (window.achievementManager) {
+      window.achievementManager.emit("SKILL_UNLOCKED", { skillId });
+    }
     return true;
   }
 
