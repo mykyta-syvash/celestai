@@ -3,3 +3,8 @@ Thumbs.db
 node_modules/
 *.log
 .playwright-mcp/
+
+# Secrets (OPENAI_API_KEY lives here, never committed)
+.env
+.env.*
+!.env.example

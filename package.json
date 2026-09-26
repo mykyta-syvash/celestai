@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "CELESTAI — Five seconds to judge a soul. A polished low-poly 3D mobile arcade game.",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --env-file-if-exists=.env server.js",
     "serve:static": "python3 -m http.server 8090",
     "check:deck": "node scripts/check-deck.mjs",
     "generate:souls": "node scripts/generate-souls.mjs"
