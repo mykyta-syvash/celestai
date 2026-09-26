@@ -174,7 +174,6 @@
           </div>
           <div class="hud-sub-stats">
             <span id="stat-streak" class="streak-pill">🔥 0</span>
-            <span class="best-pill">BEST <strong id="stat-highscore">0</strong></span>
           </div>
         </div>
 
@@ -194,7 +193,7 @@
           </div>
         </div>
 
-        <!-- Right Wing: Lives & Audio Toggle -->
+        <!-- Right Wing: Lives & Compact Audio Toggle -->
         <div class="hud-wing hud-right">
           <div class="hud-lives-block">
             <span class="hud-mini-label">LIVES</span>
@@ -204,45 +203,37 @@
               <span class="hud-heart active">♥</span>
             </div>
           </div>
-          <button id="btn-audio" class="hud-audio-btn" type="button" aria-label="Toggle Sound">🔊</button>
+          <button id="btn-audio" class="hud-audio-btn" type="button" aria-label="Toggle Sound" title="Toggle Sound">🔊</button>
         </div>
       </header>
 
-      <!-- The Judgment Tablet: Floating Ancient Slate (Lower Mid) -->
-      <div id="story-card" class="judgment-tablet">
-        <div class="tablet-header">
-          <div class="header-left">
-            <div id="soul-name" class="tablet-soul-name">Loading Soul...</div>
-            <div id="soul-title" class="tablet-soul-title">Courtroom Subject</div>
-          </div>
-          <div class="header-right">
-            <span id="soul-archetype" class="tablet-badge archetype">UNKNOWN</span>
-            <span id="soul-age" class="tablet-badge age">Age 0</span>
+      <!-- Unobstructed 3D Soul Character Viewport Spacer -->
+      <div class="soul-court-spacer" aria-hidden="true"></div>
+
+      <!-- The Judgment Tablet: Compact Divine Slate -->
+      <div id="story-card" class="compact-soul-tablet">
+        <div class="tablet-frame-runes" aria-hidden="true">
+          <span class="rune-corner top-left">✧</span>
+          <span class="rune-corner top-right">✧</span>
+        </div>
+        <div class="soul-identity-header">
+          <h2 id="soul-name" class="soul-identity-name">LOADING SOUL...</h2>
+          <div class="soul-identity-sub">
+            <span id="soul-title" class="soul-sub-title">COURT SUBJECT</span>
+            <span class="soul-sub-dot">•</span>
+            <span id="soul-age" class="soul-sub-age">AGE 0</span>
           </div>
         </div>
-
-        <div class="tablet-body">
-          <div class="dilemma-slate">
-            <div id="story-dilemma" class="dilemma-text">Weighing earthly deeds against celestial balance...</div>
-          </div>
-
-          <div class="evidence-tablets-row">
-            <div class="evidence-tablet tablet-virtue">
-              <div class="evidence-tag-row">
-                <span class="evidence-icon">🪽</span>
-                <span class="evidence-label">VIRTUE</span>
-              </div>
-              <div id="story-virtue" class="evidence-text">Calculating earthly merits...</div>
-            </div>
-
-            <div class="evidence-tablet tablet-sin">
-              <div class="evidence-tag-row">
-                <span class="evidence-icon">🔥</span>
-                <span class="evidence-label">TRANSGRESSION</span>
-              </div>
-              <div id="story-sin" class="evidence-text">Calculating earthly burdens...</div>
-            </div>
-          </div>
+        <div class="soul-tablet-line"></div>
+        <div id="story-dilemma" class="soul-dilemma-sentence">
+          "Weighing earthly deeds against celestial balance..."
+        </div>
+        <!-- Hidden accessibility & backwards-compatibility hooks for perks/abilities -->
+        <div class="sr-only" aria-hidden="true">
+          <span id="stat-highscore">0</span>
+          <span id="soul-archetype">UNKNOWN</span>
+          <span id="story-virtue">Calculating merits...</span>
+          <span id="story-sin">Calculating burdens...</span>
         </div>
       </div>
 

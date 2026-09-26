@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "CELESTAI — Five seconds to judge a soul. A polished low-poly 3D mobile arcade game.",
   "scripts": {
-    "start": "python3 -m http.server 8090",
-    "serve": "python3 -m http.server 8090"
+    "start": "node server.js",
+    "serve:static": "python3 -m http.server 8090",
+    "check:deck": "node scripts/check-deck.mjs",
+    "generate:souls": "node scripts/generate-souls.mjs"
   },
   "keywords": [
     "celestai",
@@ -15,5 +17,8 @@
     "divine-judgment"
   ],
   "author": "Mykyta Syvash <mykytasyvash@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
 }

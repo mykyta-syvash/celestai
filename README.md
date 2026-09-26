@@ -129,3 +129,20 @@ Open:
 ```
 http://localhost:8090/
 ```
+
+---
+
+## 🤖 AI Souls (OpenAI)
+
+The 80-card base deck (`js/cards/deck.js`) always works offline. Optionally, a tiny zero-dependency Node server can generate extra souls live with OpenAI — the key stays on the server, never in the browser.
+
+```bash
+export OPENAI_API_KEY=sk-...          # required for AI souls
+export OPENAI_MODEL=gpt-4.1-mini      # optional (default)
+npm start                             # node server.js → http://localhost:8090 (PORT env to change)
+```
+
+- `GET /api/health` → `{ ai: true|false }`; `POST /api/soul` (reign context → one validated card that pressures the most extreme meter); `POST /api/tribunal` (run summary → the Archangel's 2–3 sentence reflection).
+- Without a key (or with `npm run serve:static`) the game silently falls back to the static deck.
+- Offline batch: `OPENAI_API_KEY=... node scripts/generate-souls.mjs 20` appends validated cards to `js/cards/generated.js`.
+- Validate the deck and meter balance: `npm run check:deck`.

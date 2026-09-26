@@ -15,10 +15,10 @@ class SceneRenderer {
     this.height = this.container.clientHeight || window.innerHeight;
 
     // Camera: Clean stylized 3/4 perspective, centered on soul
-    this.baseCamPos = new THREE.Vector3(0, 2.9, 6.8);
-    this.baseLookTarget = new THREE.Vector3(0, 1.35, 0);
+    this.baseCamPos = new THREE.Vector3(0, 2.45, 5.85);
+    this.baseLookTarget = new THREE.Vector3(0, 1.25, 0);
 
-    this.camera = new THREE.PerspectiveCamera(42, this.width / this.height, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 0.1, 100);
     this.camera.position.copy(this.baseCamPos);
     this.camera.lookAt(this.baseLookTarget);
 
@@ -107,16 +107,18 @@ class SceneRenderer {
   }
 
   triggerHeavenLighting() {
-    this.heavenSpot.intensity = 3.5;
-    this.keyLight.color.setHex(0xffea9f);
-    this.cameraOffset.set(0, 0.15, -0.4); // Subtle gentle float up & in
+    this.heavenSpot.intensity = 3.8;
+    this.keyLight.color.setHex(0xfffae0);
+    this.heavenLight.intensity = 2.4;
+    this.cameraOffset.set(0, 0.22, -0.25); // Subtle gentle float up & in
   }
 
   triggerHellLighting() {
-    this.hellPoint.intensity = 4.0;
-    this.keyLight.color.setHex(0xff7744);
-    this.shakeIntensity = 0.08; // Subtle shudder
-    this.cameraOffset.set(0, -0.15, 0.2); // Subtle camera dip
+    this.hellPoint.intensity = 4.2;
+    this.keyLight.color.setHex(0xff5522);
+    this.hellLight.intensity = 2.6;
+    this.shakeIntensity = 0.10; // Subtle shudder
+    this.cameraOffset.set(0, -0.20, 0.2); // Subtle camera dip
   }
 
   triggerAngelLighting() {

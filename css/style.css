@@ -813,13 +813,59 @@ html, body {
 }
 
 /* ==================================================
+   SCREEN 3: GAMEPLAY LAYER (CELESTIAL TRIBUNAL)
+   ================================================== */
+#gameplay-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 14px 14px;
+  box-sizing: border-box;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#gameplay-layer.hidden {
+  display: none;
+}
+
+/* ==================================================
+   HEAVEN VS HELL ATMOSPHERIC FLANK AURAS
+   ================================================== */
+.split-aura-heaven {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 0% 65%, rgba(255, 235, 150, 0.16) 0%, rgba(255, 215, 0, 0.03) 50%, transparent 75%);
+  z-index: 2;
+}
+
+.split-aura-hell {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 100% 65%, rgba(255, 50, 0, 0.18) 0%, rgba(180, 20, 0, 0.04) 50%, transparent 75%);
+  z-index: 2;
+}
+
+/* ==================================================
    TOP CELESTIAL TRIBUNAL HUD & CIRCULAR TIMER
    ================================================== */
 .celestial-hud {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
+  position: relative;
+  width: 100%;
   z-index: 12;
   display: flex;
   justify-content: space-between;
@@ -880,22 +926,11 @@ html, body {
 }
 
 .streak-pill {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
   color: #ff9f43;
   text-shadow: 0 0 8px rgba(255, 159, 67, 0.6);
   white-space: nowrap;
-}
-
-.best-pill {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
-}
-
-.best-pill strong {
-  color: var(--gold-light);
 }
 
 /* Central Circular Countdown Timer */
@@ -995,7 +1030,7 @@ html, body {
   text-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
 }
 
-/* Right Wing: Lives & Audio */
+/* Right Wing: Lives & Compact Audio */
 .hud-right {
   clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%);
   padding-left: 18px;
@@ -1053,6 +1088,103 @@ html, body {
   opacity: 0.45;
 }
 
+/* ==================================================
+   UNOBSTRUCTED 3D SOUL CHARACTER VIEWPORT SPACER
+   ================================================== */
+.soul-court-spacer {
+  flex: 1 1 auto;
+  pointer-events: none;
+  min-height: 40px;
+}
+
+/* ==================================================
+   THE JUDGMENT TABLET: COMPACT DIVINE SLATE
+   Framed below character, fast reading (< 2 seconds)
+   ================================================== */
+.compact-soul-tablet {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(175deg, #171c28 0%, #0d1017 100%);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  pointer-events: auto;
+  animation: tabletEnter 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes tabletEnter {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tablet-frame-runes {
+  position: absolute;
+  inset: 2px 6px;
+  pointer-events: none;
+}
+
+.rune-corner {
+  position: absolute;
+  font-size: 10px;
+  color: var(--gold-glow);
+  opacity: 0.5;
+}
+
+.rune-corner.top-left { top: 0; left: 0; }
+.rune-corner.top-right { top: 0; right: 0; }
+
+.soul-identity-header {
+  text-align: center;
+}
+
+.soul-identity-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 215, 0, 0.35);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.soul-identity-sub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #cfb87b;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+.soul-sub-dot {
+  color: rgba(255, 215, 0, 0.45);
+}
+
+.soul-tablet-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.35), transparent);
+  margin: 6px auto;
+  width: 80%;
+}
+
+.soul-dilemma-sentence {
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: #f5eedb;
+  text-align: center;
+  font-style: italic;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  padding: 0 6px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1065,147 +1197,12 @@ html, body {
 }
 
 /* ==================================================
-   THE JUDGMENT TABLET (ANCIENT SLATE)
-   Framed below character, above abilities & altars
-   ================================================== */
-.judgment-tablet {
-  position: absolute;
-  bottom: 170px;
-  left: 12px;
-  right: 12px;
-  z-index: 10;
-  background: linear-gradient(175deg, #171b27 0%, #0d1017 100%);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
-  padding: 12px 14px;
-  animation: tabletEnter 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-@keyframes tabletEnter {
-  from { opacity: 0; transform: translateY(8px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.tablet-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 7px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.14);
-}
-
-.tablet-soul-name {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #ffffff;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
-}
-
-.tablet-soul-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--gold-light);
-  text-transform: uppercase;
-  margin-top: 1px;
-}
-
-.tablet-badge {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.tablet-badge.archetype {
-  color: var(--gold-light);
-  border-color: rgba(255, 215, 0, 0.3);
-}
-
-.tablet-badge.age {
-  color: var(--text-muted);
-}
-
-.dilemma-slate {
-  background: rgba(0, 0, 0, 0.45);
-  border-left: 3px solid var(--gold-glow);
-  padding: 6px 9px;
-  border-radius: 4px;
-  margin-bottom: 7px;
-}
-
-.dilemma-text {
-  font-size: 11.5px;
-  line-height: 1.38;
-  font-weight: 600;
-  color: #f1f5f9;
-}
-
-.evidence-tablets-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 7px;
-}
-
-.evidence-tablet {
-  padding: 6px 8px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.tablet-virtue {
-  background: var(--virtue-bg);
-  border: 1px solid rgba(52, 211, 153, 0.4);
-  color: #d1fae5;
-}
-
-.tablet-sin {
-  background: var(--sin-bg);
-  border: 1px solid rgba(248, 113, 113, 0.4);
-  color: #fee2e2;
-}
-
-.evidence-tag-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 2px;
-}
-
-.evidence-icon {
-  font-size: 11px;
-}
-
-.evidence-label {
-  font-size: 8.5px;
-  font-weight: 900;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.evidence-text {
-  font-size: 10px;
-  line-height: 1.32;
-  font-weight: 500;
-  opacity: 0.95;
-}
-
-/* ==================================================
    IN-GAME COMPACT ABILITY ARTIFACT BAR
    ================================================== */
 .ability-artifacts-bar {
-  position: absolute;
-  bottom: 106px;
-  left: 12px;
-  right: 12px;
-  z-index: 10;
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
   display: flex;
   gap: 8px;
   justify-content: center;
@@ -1232,7 +1229,7 @@ html, body {
 
 .ability-token .token-surface {
   position: relative;
-  height: 38px;
+  height: 36px;
   padding: 0 10px;
   background: linear-gradient(145deg, #1f273b, #121624);
   border: 1px solid rgba(255, 215, 0, 0.45);
@@ -1286,15 +1283,12 @@ html, body {
    Two ancient divine judgment mechanisms (Ivory vs Obsidian)
    ================================================== */
 .judgment-altars-row {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
+  position: relative;
+  width: 100%;
   height: 84px;
-  z-index: 10;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
   pointer-events: auto;
 }
 
@@ -1370,11 +1364,11 @@ html, body {
 }
 
 .altar-heaven .altar-key {
-  font-size: 9.5px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 900;
   color: #7a5807;
   letter-spacing: 1px;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 /* --- HELL ALTAR (Volcanic Obsidian & Molten Crimson) --- */
@@ -1419,11 +1413,11 @@ html, body {
 }
 
 .altar-hell .altar-key {
-  font-size: 9.5px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 900;
   color: #ff8c70;
   letter-spacing: 1px;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .altar-button:disabled, .altar-button.disabled {
@@ -1433,7 +1427,7 @@ html, body {
 }
 
 /* ==================================================
-   AI VERDICT MODAL POPUP
+   AI VERDICT MODAL POPUP (STREAMLINED & FAST)
    ================================================== */
 #verdict-modal {
   position: absolute;
@@ -1445,12 +1439,12 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(10, 12, 18, 0.65);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background: rgba(10, 12, 18, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease-out;
+  transition: opacity 0.2s ease-out;
   padding: 16px;
 }
 
@@ -1464,16 +1458,16 @@ html, body {
   background: linear-gradient(170deg, #181d2a 0%, #0d1017 100%);
   border: 1px solid var(--panel-border);
   clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
-  padding: 22px 20px;
+  padding: 18px 18px;
   text-align: center;
-  max-width: 360px;
+  max-width: 340px;
   width: 100%;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  animation: modalPop 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: modalPop 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
 @keyframes modalPop {
-  from { opacity: 0; transform: scale(0.88); }
+  from { opacity: 0; transform: scale(0.90); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -1505,27 +1499,27 @@ html, body {
 
 .verdict-score {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 1px;
   color: #ffffff;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
 }
 
 .verdict-reasoning {
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 11.5px;
+  line-height: 1.35;
   color: #d1d5db;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-style: italic;
 }
 
 .verdict-quote {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--gold-light);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .tap-hint {
