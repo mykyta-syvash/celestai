@@ -1,0 +1,2183 @@
+/* ==================================================
+   CELESTIAL JUDGMENT — LOW-POLY MOBILE GAME UI
+   Complete Game Flow & Permanent Judge Skill Tree Styles
+   ================================================== */
+
+:root {
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --gold-glow: #ffd700;
+  --gold-light: #fff8d6;
+  --gold-rim: #e2b744;
+  --gold-dark: #8c670a;
+  
+  --heaven-ivory: #fffdf2;
+  --heaven-gold: #ffdf78;
+  --heaven-bg: linear-gradient(165deg, #ffffff 0%, #faecd0 45%, #e0c184 100%);
+  --heaven-shadow: rgba(255, 215, 0, 0.45);
+
+  --hell-glow: #ff3b00;
+  --hell-light: #ff7347;
+  --hell-rim: #8a1708;
+  --hell-dark: #3b0501;
+  --hell-bg: linear-gradient(165deg, #220805 0%, #470e0a 45%, #180302 100%);
+  --hell-shadow: rgba(255, 55, 0, 0.48);
+
+  --stone-obsidian: #0f121a;
+  --stone-slate: #151a26;
+  --stone-rim: rgba(255, 215, 0, 0.28);
+  --panel-bg: rgba(15, 18, 27, 0.92);
+  --panel-border: rgba(255, 215, 0, 0.22);
+
+  --virtue-emerald: #10b981;
+  --virtue-bg: linear-gradient(150deg, rgba(8, 38, 22, 0.92) 0%, rgba(4, 20, 12, 0.96) 100%);
+  --sin-crimson: #ef4444;
+  --sin-bg: linear-gradient(150deg, rgba(46, 10, 12, 0.92) 0%, rgba(24, 4, 6, 0.96) 100%);
+
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --font-main: var(--font-ui);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #0b0d14;
+  font-family: var(--font-main);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ==================================================
+   MOBILE CONTAINER WRAPPER
+   ================================================== */
+#game-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 500px;
+  max-height: 920px;
+  background: #141722;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 520px) {
+  #game-wrapper {
+    border-radius: 28px;
+    height: 94vh;
+  }
+}
+
+#canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+#canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* ==================================================
+   GAME SCREEN MANAGEMENT
+   ================================================== */
+.game-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(0.98);
+  background: radial-gradient(circle at 50% 30%, rgba(18, 22, 34, 0.72) 0%, rgba(10, 12, 18, 0.94) 85%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 18px;
+}
+
+.game-screen.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.game-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.game-layer > * {
+  pointer-events: auto;
+}
+
+/* ==================================================
+   SCREEN 1: MAIN MENU (CELESTAI)
+   Low-Poly Divine Judgment Chamber
+   ================================================== */
+#screen-main-menu {
+  background: radial-gradient(circle at 50% 45%, transparent 35%, rgba(10, 12, 18, 0.45) 100%),
+              linear-gradient(180deg, rgba(12, 14, 22, 0.72) 0%, transparent 18%, transparent 66%, rgba(10, 11, 16, 0.85) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+/* Top-Right Compact Settings Gear */
+.menu-settings-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #282a35 0%, #151620 100%);
+  border: 1.5px solid rgba(220, 185, 95, 0.45);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  padding: 0;
+  outline: none;
+}
+
+.menu-settings-btn .settings-gear-icon {
+  font-size: 21px;
+  color: #f2d27a;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 100, 0.45));
+  transition: transform 0.35s ease;
+  display: inline-block;
+  line-height: 1;
+}
+
+.menu-settings-btn:hover {
+  transform: scale(1.06);
+  border-color: rgba(255, 225, 120, 0.85);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.75), 0 0 12px rgba(230, 190, 80, 0.35);
+}
+
+.menu-settings-btn:hover .settings-gear-icon {
+  transform: rotate(45deg);
+}
+
+.menu-settings-btn:active {
+  transform: scale(0.94);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* Menu Chamber Layout Container */
+.menu-chamber-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 18px 20px 18px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.menu-chamber-container > * {
+  pointer-events: auto;
+}
+
+/* TOP: CELESTAI Brand Header */
+.celestai-brand-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 6px;
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.celestai-halo-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.celestai-halo-symbol .halo-wing {
+  width: 28px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(230, 204, 130, 0.8));
+}
+
+.celestai-halo-symbol .halo-wing.right {
+  background: linear-gradient(90deg, rgba(230, 204, 130, 0.8), transparent);
+}
+
+.celestai-halo-symbol .halo-ring {
+  font-size: 15px;
+  color: #f7e2a9;
+  text-shadow: 0 0 10px rgba(255, 215, 100, 0.75);
+  animation: pulse-halo-ring 3s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-halo-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.12); opacity: 1; text-shadow: 0 0 14px rgba(255, 225, 120, 0.9); }
+}
+
+.celestai-logo {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  margin: 0;
+  line-height: 1.05;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  text-transform: uppercase;
+  filter: drop-shadow(0 2px 14px rgba(220, 180, 80, 0.4)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.85));
+}
+
+.celestai-logo .logo-main {
+  background: linear-gradient(180deg, #ffffff 0%, #f7ecd7 48%, #d5ba75 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.celestai-logo .logo-ai {
+  background: linear-gradient(180deg, #fffef5 0%, #ffe082 45%, #f5b324 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  letter-spacing: 0.18em;
+  filter: drop-shadow(0 0 10px rgba(255, 220, 100, 0.65));
+}
+
+.celestai-tagline {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.26em;
+  color: #dfcca2;
+  margin-top: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9), 0 0 12px rgba(230, 200, 110, 0.35);
+  opacity: 0.94;
+}
+
+/* CENTER: Unobstructed Viewport Spacer */
+.judge-chamber-spacer {
+  flex: 1;
+  min-height: 160px;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* LOWER CENTER & BOTTOM: Physical 3D Altar UI */
+.menu-altar-controls {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 20;
+}
+
+/* Primary Judgment Altar Button */
+.altar-judge-btn {
+  position: relative;
+  width: 100%;
+  height: 64px;
+  background: linear-gradient(180deg, #fbf7ee 0%, #edd8ab 35%, #c8a356 85%, #926f29 100%);
+  border-radius: 15px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  box-shadow:
+    0 8px 0 #563d12,
+    0 11px 5px rgba(0, 0, 0, 0.75),
+    0 18px 30px rgba(0, 0, 0, 0.65),
+    0 0 22px rgba(240, 195, 80, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s ease, filter 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.altar-judge-btn .altar-btn-top {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  right: 4px;
+  bottom: 8px;
+  background: linear-gradient(180deg, #fffdf8 0%, #f9eed7 42%, #e0be75 95%);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.95), inset 0 -3px 6px rgba(130, 95, 25, 0.35);
+}
+
+.altar-judge-btn .altar-text {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: #3b280b;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 4px rgba(90, 60, 10, 0.25);
+}
+
+.altar-judge-btn .altar-rune {
+  font-size: 16px;
+  color: #ad7d21;
+  text-shadow: 0 0 8px rgba(255, 215, 80, 0.7);
+  animation: rune-pulse 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes rune-pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.15); opacity: 1; color: #7a540e; }
+}
+
+.altar-judge-btn:hover {
+  transform: translateY(-3px) scale(1.018);
+  box-shadow:
+    0 11px 0 #563d12,
+    0 15px 9px rgba(0, 0, 0, 0.78),
+    0 24px 38px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(255, 215, 90, 0.5);
+  filter: brightness(1.05);
+}
+
+.altar-judge-btn:active,
+.altar-judge-btn.pressed {
+  transform: translateY(6px) scale(0.985);
+  box-shadow:
+    0 2px 0 #563d12,
+    0 4px 6px rgba(0, 0, 0, 0.75),
+    0 0 38px rgba(255, 225, 100, 0.8);
+  filter: brightness(1.18);
+}
+
+/* Compact Progression Plaque */
+.menu-progression-plaque {
+  width: 100%;
+  background: linear-gradient(180deg, #22242f 0%, #15161f 100%);
+  border: 1.5px solid rgba(215, 175, 85, 0.4);
+  border-radius: 11px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.1), inset 0 -2px 5px rgba(0, 0, 0, 0.6);
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 9px;
+  margin-bottom: 11px;
+}
+
+.menu-progression-plaque .plaque-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.menu-progression-plaque .plaque-badge {
+  color: #f7e1a0;
+  text-shadow: 0 0 8px rgba(245, 205, 80, 0.4);
+}
+
+.menu-progression-plaque .plaque-bullet {
+  color: rgba(220, 185, 100, 0.45);
+  font-size: 8px;
+}
+
+.menu-progression-plaque .plaque-title {
+  color: #ffffff;
+  letter-spacing: 0.14em;
+}
+
+.menu-progression-plaque .plaque-xp-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(12, 13, 18, 0.95);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(220, 185, 90, 0.25);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.menu-progression-plaque .plaque-xp-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #d49f2b 0%, #fadb6d 50%, #fff4be 100%);
+  box-shadow: 0 0 8px rgba(250, 215, 100, 0.7);
+  transition: width 0.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+  border-radius: 3px;
+}
+
+.menu-progression-plaque .plaque-xp-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu-progression-plaque .plaque-xp-text {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(240, 225, 195, 0.75);
+}
+
+/* BOTTOM ROW: Secondary Physical Stone Plaques */
+.menu-bottom-plaques {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stone-plaque-btn {
+  background: linear-gradient(180deg, #2a2d39 0%, #171922 100%);
+  border: 1.5px solid rgba(220, 185, 95, 0.38);
+  border-radius: 11px;
+  box-shadow:
+    0 4px 0 #101116,
+    0 6px 14px rgba(0, 0, 0, 0.65),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  text-align: left;
+  outline: none;
+}
+
+.stone-plaque-btn .plaque-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  flex-shrink: 0;
+}
+
+.stone-plaque-btn .plaque-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.stone-plaque-btn .plaque-title-main {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #f7ebd0;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.stone-plaque-btn .plaque-subtitle {
+  font-family: var(--font-ui);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #cfb87b;
+  white-space: nowrap;
+}
+
+.stone-plaque-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 220, 110, 0.72);
+  box-shadow:
+    0 6px 0 #101116,
+    0 8px 18px rgba(0, 0, 0, 0.72),
+    0 0 12px rgba(230, 190, 80, 0.28);
+  filter: brightness(1.08);
+}
+
+.stone-plaque-btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 #101116,
+    0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* ==================================================
+   SCREEN 2: NEW JUDGMENT (PRE-RUN)
+   ================================================== */
+.pre-run-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  gap: 18px;
+}
+
+.pre-run-header {
+  text-align: center;
+}
+
+.pre-run-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.4);
+}
+
+.pre-run-subtitle {
+  font-size: 13px;
+  color: var(--gold-light);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.pre-run-card {
+  width: 100%;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.pre-run-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.stat-value-large {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.hearts-large .heart {
+  font-size: 22px;
+  margin: 0 2px;
+}
+
+.abilities-preview-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.preview-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--gold-light);
+  letter-spacing: 0.8px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.preview-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ability-pill-preview {
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.preview-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.pre-run-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-main-action {
+  width: 100%;
+  height: 52px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s;
+}
+
+.btn-text-back {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.15s;
+}
+
+.btn-text-back:hover {
+  color: #ffffff;
+}
+
+/* ==================================================
+   SCREEN FLASH EFFECTS (HEAVEN / HELL)
+   ================================================== */
+.screen-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+#flash-heaven {
+  background: radial-gradient(circle at 50% 30%, rgba(255, 240, 180, 0.55), rgba(255, 215, 0, 0.15) 70%, transparent);
+}
+
+#flash-hell {
+  background: radial-gradient(circle at 50% 80%, rgba(255, 40, 0, 0.6), rgba(80, 0, 0, 0.4) 70%, transparent);
+}
+
+.screen-flash.active {
+  opacity: 1;
+}
+
+/* ==================================================
+   FLOATING SCORE POPUPS (+1 / -1 LIFE)
+   ================================================== */
+.score-popup {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  z-index: 25;
+  pointer-events: none;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  white-space: nowrap;
+}
+
+.score-popup.active.pos {
+  opacity: 1;
+  color: #4ade80;
+  text-shadow: 0 0 20px rgba(74, 222, 128, 0.8), 0 4px 10px rgba(0, 0, 0, 0.8);
+  transform: translate(-50%, -85%) scale(1.15);
+}
+
+.score-popup.active.neg {
+  opacity: 1;
+  color: #ff3b5c;
+  text-shadow: 0 0 20px rgba(255, 59, 92, 0.8), 0 4px 10px rgba(0, 0, 0, 0.8);
+  transform: translate(-50%, -85%) scale(1.15);
+  animation: shakePopup 0.35s ease-in-out;
+}
+
+@keyframes shakePopup {
+  0%, 100% { transform: translate(-50%, -85%) scale(1.15); }
+  25% { transform: translate(-58%, -85%) scale(1.15); }
+  75% { transform: translate(-42%, -85%) scale(1.15); }
+}
+
+/* ==================================================
+   ABILITY TOAST BANNER
+   ================================================== */
+.ability-toast {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-40px);
+  z-index: 40;
+  background: rgba(18, 22, 34, 0.95);
+  border: 1px solid var(--gold-glow);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.75), 0 0 16px rgba(255, 215, 0, 0.4);
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  max-width: 90%;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.ability-toast.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ==================================================
+   HEAVEN VS HELL ATMOSPHERIC FLANK AURAS
+   ================================================== */
+.split-aura-heaven {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 0% 70%, rgba(255, 235, 150, 0.18) 0%, rgba(255, 215, 0, 0.04) 50%, transparent 75%);
+  z-index: 2;
+}
+
+.split-aura-hell {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 48%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 100% 70%, rgba(255, 50, 0, 0.20) 0%, rgba(180, 20, 0, 0.05) 50%, transparent 75%);
+  z-index: 2;
+}
+
+/* ==================================================
+   TOP CELESTIAL TRIBUNAL HUD & CIRCULAR TIMER
+   ================================================== */
+.celestial-hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 12;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.hud-wing {
+  background: linear-gradient(160deg, #181d2a 0%, #10131e 100%);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  height: 52px;
+}
+
+.hud-left {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  padding-right: 18px;
+  gap: 12px;
+}
+
+.hud-score-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-mini-label {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.hud-glyph {
+  font-size: 10px;
+}
+
+.hud-main-num {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.hud-sub-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.streak-pill {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #ff9f43;
+  text-shadow: 0 0 8px rgba(255, 159, 67, 0.6);
+  white-space: nowrap;
+}
+
+.best-pill {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.best-pill strong {
+  color: var(--gold-light);
+}
+
+/* Central Circular Countdown Timer */
+.hud-center-timer {
+  position: relative;
+  width: 74px;
+  height: 74px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7));
+}
+
+.timer-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg {
+  fill: #0c0e17;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 6;
+}
+
+.timer-ring-progress {
+  fill: none;
+  stroke: var(--gold-glow);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 226.195;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+  filter: drop-shadow(0 0 6px var(--gold-glow));
+}
+
+.timer-center-content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.timer-number {
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.timer-unit {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--gold-light);
+  margin-top: 1px;
+}
+
+/* Timer Warning / Critical / Frozen States */
+.hud-center-timer.warning .timer-ring-progress {
+  stroke: #ff9233;
+  filter: drop-shadow(0 0 8px #ff9233);
+}
+.hud-center-timer.warning .timer-number {
+  color: #ff9233;
+  text-shadow: 0 0 10px rgba(255, 146, 51, 0.7);
+}
+
+.hud-center-timer.critical {
+  animation: urgentPulseTimer 0.35s infinite alternate ease-in-out;
+}
+.hud-center-timer.critical .timer-ring-progress {
+  stroke: #ff3355;
+  filter: drop-shadow(0 0 12px #ff3355);
+}
+.hud-center-timer.critical .timer-number {
+  color: #ff3355;
+  text-shadow: 0 0 12px rgba(255, 51, 85, 0.9);
+}
+
+@keyframes urgentPulseTimer {
+  from { transform: scale(1); filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7)); }
+  to { transform: scale(1.08); filter: drop-shadow(0 0 18px rgba(255, 51, 85, 0.8)); }
+}
+
+.hud-center-timer.frozen .timer-ring-progress {
+  stroke: #38bdf8;
+  filter: drop-shadow(0 0 12px #38bdf8);
+}
+.hud-center-timer.frozen .timer-number {
+  color: #bae6fd;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+}
+
+/* Right Wing: Lives & Audio */
+.hud-right {
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%);
+  padding-left: 18px;
+  gap: 10px;
+}
+
+.hud-lives-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-lives-container {
+  display: flex;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.hud-heart {
+  font-size: 17px;
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.25s, color 0.25s;
+}
+
+.hud-heart.active {
+  color: #ff3b5c;
+  text-shadow: 0 0 10px rgba(255, 59, 92, 0.8), 0 2px 4px rgba(0, 0, 0, 0.6);
+  transform: scale(1.05);
+}
+
+.hud-heart.lost {
+  color: rgba(255, 255, 255, 0.18);
+  text-shadow: none;
+  transform: scale(0.85);
+}
+
+.hud-audio-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.hud-audio-btn:hover {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: var(--gold-glow);
+}
+
+.hud-audio-btn.muted {
+  opacity: 0.45;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ==================================================
+   THE JUDGMENT TABLET (ANCIENT SLATE)
+   Framed below character, above abilities & altars
+   ================================================== */
+.judgment-tablet {
+  position: absolute;
+  bottom: 170px;
+  left: 12px;
+  right: 12px;
+  z-index: 10;
+  background: linear-gradient(175deg, #171b27 0%, #0d1017 100%);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+  padding: 12px 14px;
+  animation: tabletEnter 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes tabletEnter {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tablet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.14);
+}
+
+.tablet-soul-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.tablet-soul-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.tablet-badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.tablet-badge.archetype {
+  color: var(--gold-light);
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.tablet-badge.age {
+  color: var(--text-muted);
+}
+
+.dilemma-slate {
+  background: rgba(0, 0, 0, 0.45);
+  border-left: 3px solid var(--gold-glow);
+  padding: 6px 9px;
+  border-radius: 4px;
+  margin-bottom: 7px;
+}
+
+.dilemma-text {
+  font-size: 11.5px;
+  line-height: 1.38;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.evidence-tablets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.evidence-tablet {
+  padding: 6px 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.tablet-virtue {
+  background: var(--virtue-bg);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #d1fae5;
+}
+
+.tablet-sin {
+  background: var(--sin-bg);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  color: #fee2e2;
+}
+
+.evidence-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.evidence-icon {
+  font-size: 11px;
+}
+
+.evidence-label {
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.evidence-text {
+  font-size: 10px;
+  line-height: 1.32;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+/* ==================================================
+   IN-GAME COMPACT ABILITY ARTIFACT BAR
+   ================================================== */
+.ability-artifacts-bar {
+  position: absolute;
+  bottom: 106px;
+  left: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.ability-token {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  transition: transform 0.15s;
+}
+
+.ability-token .token-pedestal {
+  position: absolute;
+  inset: 0;
+  background: #090b10;
+  border-radius: 12px;
+  box-shadow: 0 4px 0 #050608, 0 6px 14px rgba(0, 0, 0, 0.6);
+}
+
+.ability-token .token-surface {
+  position: relative;
+  height: 38px;
+  padding: 0 10px;
+  background: linear-gradient(145deg, #1f273b, #121624);
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.ability-token.available:hover .token-surface {
+  transform: translateY(-2px);
+  border-color: var(--gold-glow);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.ability-token.available:active .token-surface {
+  transform: translateY(3px);
+}
+
+.ability-token.used {
+  opacity: 0.35;
+  filter: grayscale(0.8);
+  cursor: default;
+}
+
+.token-glyph {
+  font-size: 13px;
+}
+
+.token-name {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.token-charge-pill {
+  font-size: 8px;
+  font-weight: 900;
+  background: rgba(255, 215, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: var(--gold-light);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+/* ==================================================
+   MONUMENTAL 3D PHYSICAL JUDGMENT ALTARS
+   Two ancient divine judgment mechanisms (Ivory vs Obsidian)
+   ================================================== */
+.judgment-altars-row {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  height: 84px;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+.altar-button {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  overflow: visible;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.altar-pedestal-bevel {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  transition: box-shadow 0.15s;
+}
+
+.altar-platform {
+  position: absolute;
+  inset: 0 0 8px 0;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+  transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.14s, filter 0.14s;
+}
+
+/* --- HEAVEN ALTAR (Celestial Marble & Brushed Gold) --- */
+.altar-heaven .altar-pedestal-bevel {
+  background: #7a5807;
+  box-shadow: 0 10px 0 #4f3903, 0 16px 26px rgba(0, 0, 0, 0.65), 0 0 20px rgba(255, 215, 0, 0.28);
+}
+
+.altar-heaven .altar-platform {
+  background: linear-gradient(165deg, #ffffff 0%, #faf1dd 45%, #e2c589 100%);
+  border: 2px solid #ffd700;
+  box-shadow: inset 0 2px 0 #ffffff, inset 0 -3px 0 rgba(122, 88, 7, 0.4);
+}
+
+.altar-heaven:hover:not(:disabled) .altar-platform {
+  transform: translateY(-3px);
+  filter: brightness(1.04);
+  box-shadow: inset 0 2px 0 #ffffff, inset 0 -3px 0 rgba(122, 88, 7, 0.4), 0 0 16px rgba(255, 215, 0, 0.5);
+}
+
+.altar-heaven:active:not(:disabled) .altar-platform,
+.altar-heaven.pressed:not(:disabled) .altar-platform {
+  transform: translateY(7px);
+  filter: brightness(1.1);
+  box-shadow: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(122, 88, 7, 0.6);
+}
+
+.altar-heaven .crest-glyph {
+  font-size: 21px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.5));
+}
+
+.altar-heaven .altar-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #3b2803;
+  text-shadow: 0 1px 0 #ffffff;
+  line-height: 1.1;
+}
+
+.altar-heaven .altar-key {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #7a5807;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+/* --- HELL ALTAR (Volcanic Obsidian & Molten Crimson) --- */
+.altar-hell .altar-pedestal-bevel {
+  background: #470601;
+  box-shadow: 0 10px 0 #290300, 0 16px 26px rgba(0, 0, 0, 0.65), 0 0 20px rgba(255, 55, 0, 0.35);
+}
+
+.altar-hell .altar-platform {
+  background: linear-gradient(165deg, #220805 0%, #470e0a 45%, #180302 100%);
+  border: 2px solid #ff3700;
+  box-shadow: inset 0 2px 0 rgba(255, 120, 90, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.8);
+}
+
+.altar-hell:hover:not(:disabled) .altar-platform {
+  transform: translateY(-3px);
+  filter: brightness(1.08);
+  box-shadow: inset 0 2px 0 rgba(255, 140, 110, 0.7), inset 0 -3px 0 rgba(0, 0, 0, 0.8), 0 0 16px rgba(255, 55, 0, 0.6);
+}
+
+.altar-hell:active:not(:disabled) .altar-platform,
+.altar-hell.pressed:not(:disabled) .altar-platform {
+  transform: translateY(7px);
+  filter: brightness(1.15);
+  box-shadow: inset 0 1px 0 rgba(255, 120, 90, 0.4), inset 0 -1px 0 rgba(0, 0, 0, 0.9);
+}
+
+.altar-hell .crest-glyph {
+  font-size: 21px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(255, 55, 0, 0.6));
+}
+
+.altar-hell .altar-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-shadow: 0 0 12px #ff3700, 0 2px 4px #000000;
+  line-height: 1.1;
+}
+
+.altar-hell .altar-key {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #ff8c70;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.altar-button:disabled, .altar-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ==================================================
+   AI VERDICT MODAL POPUP
+   ================================================== */
+#verdict-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(10, 12, 18, 0.65);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+  padding: 16px;
+}
+
+#verdict-modal.visible {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.modal-content {
+  background: linear-gradient(170deg, #181d2a 0%, #0d1017 100%);
+  border: 1px solid var(--panel-border);
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+  padding: 22px 20px;
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: modalPop 0.28s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.88); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.badge-correct {
+  display: inline-block;
+  background: rgba(74, 222, 128, 0.18);
+  border: 1px solid #4ade80;
+  color: #4ade80;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.badge-wrong {
+  display: inline-block;
+  background: rgba(255, 59, 92, 0.18);
+  border: 1px solid #ff3b5c;
+  color: #ff3b5c;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+
+.verdict-score {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.verdict-reasoning {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #d1d5db;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.verdict-quote {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+}
+
+.tap-hint {
+  font-size: 9.5px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  animation: pulseHint 1.2s infinite;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
+/* ==================================================
+   SCREEN 4: ARCHANGEL'S TRIBUNAL
+   ================================================== */
+.angel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(8, 10, 16, 0.2) 0%, rgba(8, 10, 16, 0.85) 50%, rgba(8, 10, 16, 0.96) 100%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-out;
+  padding: 20px;
+}
+
+.angel-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.angel-dialog-box {
+  background: var(--panel-bg);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 24px;
+  padding: 22px 18px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  animation: modalPop 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  margin-bottom: 16px;
+}
+
+.angel-badge {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--gold-glow);
+  letter-spacing: 1.5px;
+  margin-bottom: 14px;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+.beat-text {
+  font-size: 14.5px;
+  line-height: 1.48;
+  color: #f8fafc;
+  font-weight: 600;
+  margin-bottom: 14px;
+  animation: fadeInBeat 0.35s ease-out;
+}
+
+@keyframes fadeInBeat {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.destiny-container {
+  margin: 12px 0 16px 0;
+}
+
+.destiny-lead {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.destiny-banner {
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.destiny-banner.heaven {
+  color: var(--gold-glow);
+  text-shadow: 0 0 24px rgba(255, 215, 0, 0.85), 0 0 45px rgba(255, 215, 0, 0.4);
+  animation: destinyGlow 1.2s infinite alternate;
+}
+
+.destiny-banner.hell {
+  color: #ff3b30;
+  text-shadow: 0 0 24px rgba(255, 59, 48, 0.85), 0 0 45px rgba(255, 59, 48, 0.4);
+  animation: destinyGlow 1.2s infinite alternate;
+}
+
+@keyframes destinyGlow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.2); transform: scale(1.02); }
+}
+
+/* ==================================================
+   SCREEN 5: RUN RESULTS SCREEN
+   ================================================== */
+.results-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 390px;
+  gap: 12px;
+  max-height: 94vh;
+  overflow-y: auto;
+}
+
+.results-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.results-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.4);
+}
+
+.banner-tag {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 1px;
+}
+
+.banner-tag.gold {
+  color: var(--gold-glow);
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  animation: pulseHint 0.8s infinite;
+}
+
+.banner-tag.emerald {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.results-card-item {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  padding: 8px 10px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.item-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.item-val {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.item-val.highlight {
+  color: #4ade80;
+}
+
+.xp-highlight {
+  color: #ffd700 !important;
+}
+
+.results-progression-row {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--panel-border);
+  padding: 8px 14px;
+  border-radius: 12px;
+}
+
+.prog-info {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.prog-label {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.prog-val {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.results-profile-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.profile-tag {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--gold-light);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.profile-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.profile-desc {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.results-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ==================================================
+   SCREEN 6: SKILL TREE ("THE JUDGE")
+   ================================================== */
+.skill-tree-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 440px;
+  padding: 12px 6px;
+  overflow: hidden;
+}
+
+.tree-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.tree-title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffffff;
+}
+
+.tree-subtitle {
+  font-size: 11px;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.tree-progression-bar {
+  background: var(--panel-bg);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 16px;
+  padding: 10px 14px;
+}
+
+.tree-level-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.available-xp-badge {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
+.available-xp-badge strong {
+  color: var(--gold-glow);
+  font-size: 13px;
+}
+
+.branch-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.branch-tab {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 8px 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  outline: none;
+}
+
+.branch-tab.active {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: var(--gold-glow);
+  color: var(--gold-glow);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.25);
+}
+
+.branch-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.skill-nodes-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.skill-node-card {
+  width: 100%;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s;
+}
+
+.skill-node-card.unlocked {
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(20, 36, 28, 0.9);
+}
+
+.skill-node-card.can-unlock {
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.2);
+}
+
+.node-left {
+  flex-shrink: 0;
+}
+
+.node-icon-box {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}
+
+.skill-node-card.unlocked .node-icon-box {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: #4ade80;
+}
+
+.node-center {
+  flex: 1;
+  min-width: 0;
+}
+
+.node-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.node-name {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.badge {
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.badge.unlocked {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+}
+
+.badge.ready {
+  background: rgba(255, 215, 0, 0.2);
+  color: var(--gold-glow);
+}
+
+.badge.locked {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+
+.node-desc {
+  font-size: 10.5px;
+  line-height: 1.3;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.node-cost-row {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.node-right {
+  flex-shrink: 0;
+}
+
+.btn-unlock {
+  border: none;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 900;
+  padding: 8px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s;
+}
+
+.btn-unlock.ready {
+  background: var(--heaven-bg);
+  color: #3b2803;
+  box-shadow: 0 3px 0 var(--gold-dark);
+}
+
+.btn-unlock.ready:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--gold-dark);
+}
+
+.btn-unlock.unlocked {
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid #4ade80;
+  color: #4ade80;
+  cursor: default;
+}
+
+.btn-unlock.locked {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 9px;
+  cursor: not-allowed;
+}
+
+.node-connector {
+  width: 3px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+.node-connector.active {
+  background: var(--gold-glow);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.tree-footer {
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* ==================================================
+   SCREEN 7 & 8: HIGH SCORE & SETTINGS
+   ================================================== */
+.subscreen-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  gap: 16px;
+}
+
+.subscreen-header {
+  text-align: center;
+}
+
+.subscreen-title {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.subscreen-subtitle {
+  font-size: 12px;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+}
+
+.records-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.record-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.record-icon {
+  font-size: 22px;
+}
+
+.record-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.record-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.record-val.highlight {
+  color: #4ade80;
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.settings-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.btn-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-toggle.active {
+  background: rgba(74, 222, 128, 0.2);
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.35);
+}
+
+.subscreen-footer {
+  width: 100%;
+}
+
+.hidden {
+  display: none !important;
+}

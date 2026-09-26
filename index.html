@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#181a24">
+  <title>CELESTAI — Five Seconds to Judge a Soul</title>
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Premium Game Fonts: Cinzel (Celestial Roman Display) & Outfit (Geometric Display) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Three.js CDN with failover -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"><\/script>');
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Game Shell (Emulates mobile screen frame on desktop) -->
+  <div id="game-wrapper">
+    <!-- WebGL 3D Canvas Viewport (Background for all screens) -->
+    <div id="canvas-container"></div>
+
+    <!-- Screen Flash Bloom Overlays -->
+    <div id="flash-heaven" class="screen-flash"></div>
+    <div id="flash-hell" class="screen-flash"></div>
+
+    <!-- Floating Score Popups (+1 / -1 LIFE) -->
+    <div id="score-pop" class="score-popup"></div>
+
+    <!-- Floating In-Game Ability Toast Banner -->
+    <div id="ability-toast" class="ability-toast"></div>
+
+    <!-- ==========================================
+         SCREEN 1: MAIN MENU (CELESTAI)
+         ========================================== -->
+    <div id="screen-main-menu" class="game-screen active">
+      <!-- Top-Right: Compact Stone/Gold Settings Button -->
+      <button id="menu-btn-settings" class="menu-settings-btn" type="button" aria-label="Settings">
+        <span class="settings-gear-icon">⚙</span>
+      </button>
+
+      <div class="menu-chamber-container">
+        <!-- TOP: CELESTAI Brand Header & Tagline -->
+        <header class="celestai-brand-header">
+          <div class="celestai-halo-symbol" aria-hidden="true">
+            <span class="halo-wing left"></span>
+            <span class="halo-ring">✧</span>
+            <span class="halo-wing right"></span>
+          </div>
+          <h1 class="celestai-logo">
+            <span class="logo-main">CELEST</span><span class="logo-ai">AI</span>
+          </h1>
+          <p class="celestai-tagline">FIVE SECONDS TO JUDGE A SOUL.</p>
+        </header>
+
+        <!-- CENTER: Unobstructed Viewport Spacer Framing the 3D Judge Character & Pedestal -->
+        <div class="judge-chamber-spacer" aria-hidden="true"></div>
+
+        <!-- LOWER CENTER & BOTTOM: Physical 3D Altar UI -->
+        <div class="menu-altar-controls">
+          <!-- Primary Judgment Altar Button -->
+          <button id="menu-btn-judge" class="altar-judge-btn" type="button">
+            <span class="altar-btn-top">
+              <span class="altar-rune left">✦</span>
+              <span class="altar-text">JUDGE</span>
+              <span class="altar-rune right">✦</span>
+            </span>
+          </button>
+
+          <!-- Compact Progression Plaque (Mounted onto Pedestal Base) -->
+          <div class="menu-progression-plaque">
+            <div class="plaque-header">
+              <span class="plaque-badge">LEVEL <span id="menu-player-level">1</span></span>
+              <span class="plaque-bullet">•</span>
+              <span id="menu-player-title" class="plaque-title">MORTAL</span>
+            </div>
+            <div class="plaque-xp-track">
+              <div id="menu-xp-bar" class="plaque-xp-fill"></div>
+            </div>
+            <div class="plaque-xp-footer">
+              <span id="menu-xp-text" class="plaque-xp-text">0 / 10 XP</span>
+            </div>
+          </div>
+
+          <!-- BOTTOM ROW: Physical Secondary Stone Plaques -->
+          <div class="menu-bottom-plaques">
+            <!-- The Judge / Skills Plaque -->
+            <button id="menu-btn-skills" class="stone-plaque-btn" type="button">
+              <span class="plaque-icon">⚖️</span>
+              <div class="plaque-content">
+                <span class="plaque-title-main">THE JUDGE</span>
+                <span class="plaque-subtitle">SKILLS & ASCENSION</span>
+              </div>
+            </button>
+
+            <!-- High Score Plaque -->
+            <button id="menu-btn-highscore" class="stone-plaque-btn" type="button">
+              <span class="plaque-icon">🏆</span>
+              <div class="plaque-content">
+                <span class="plaque-title-main">HIGH SCORE</span>
+                <span id="menu-best-score" class="plaque-subtitle">BEST: 0</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 2: NEW JUDGMENT (PRE-RUN)
+         ========================================== -->
+    <div id="screen-new-run" class="game-screen">
+      <div class="pre-run-container">
+        <div class="pre-run-header">
+          <div class="pre-run-title">NEW JUDGMENT</div>
+          <div class="pre-run-subtitle">"Your soul awaits."</div>
+        </div>
+
+        <div class="pre-run-card">
+          <div class="pre-run-stat">
+            <span class="stat-label">STARTING LIVES</span>
+            <div id="pre-run-lives" class="lives-container hearts-large">
+              <span class="heart active">♥</span>
+              <span class="heart active">♥</span>
+              <span class="heart active">♥</span>
+            </div>
+          </div>
+
+          <div class="pre-run-stat">
+            <span class="stat-label">CURRENT SCORE</span>
+            <span class="stat-value-large">0</span>
+          </div>
+
+          <div id="pre-run-abilities-preview" class="abilities-preview-box">
+            <!-- Populated dynamically with active ability icons -->
+          </div>
+        </div>
+
+        <div class="pre-run-actions">
+          <button id="btn-begin-run" class="btn-main-action primary-btn" type="button">✦ BEGIN ✦</button>
+          <button id="btn-new-run-back" class="btn-text-back" type="button">← BACK TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 3: ACTIVE GAMEPLAY HUD & CARDS
+         ========================================== -->
+    <div id="gameplay-layer" class="game-layer hidden">
+      <!-- Atmospheric Left/Right Flank Auras for Heaven vs Hell Split -->
+      <div class="split-aura-heaven" aria-hidden="true"></div>
+      <div class="split-aura-hell" aria-hidden="true"></div>
+
+      <!-- Top Celestial Tribunal HUD -->
+      <header id="top-bar" class="celestial-hud">
+        <!-- Left Wing: Score & Streak -->
+        <div class="hud-wing hud-left">
+          <div class="hud-score-block">
+            <span class="hud-mini-label"><span class="hud-glyph">⚖</span> SCORE</span>
+            <span id="stat-score" class="hud-main-num">0</span>
+          </div>
+          <div class="hud-sub-stats">
+            <span id="stat-streak" class="streak-pill">🔥 0</span>
+            <span class="best-pill">BEST <strong id="stat-highscore">0</strong></span>
+          </div>
+        </div>
+
+        <!-- Center: Large Circular Countdown Timer -->
+        <div id="circular-timer-container" class="hud-center-timer">
+          <svg class="timer-svg" viewBox="0 0 88 88" aria-hidden="true">
+            <circle class="timer-ring-bg" cx="44" cy="44" r="36" />
+            <circle id="timer-ring-progress" class="timer-ring-progress" cx="44" cy="44" r="36" />
+          </svg>
+          <div class="timer-center-content">
+            <span id="timer-text" class="timer-number">5</span>
+            <span class="timer-unit">SEC</span>
+          </div>
+          <!-- Hidden fallback elements for app.js sync -->
+          <div id="timer-container" class="sr-only" aria-hidden="true">
+            <div id="timer-track"><div id="timer-bar"></div></div>
+          </div>
+        </div>
+
+        <!-- Right Wing: Lives & Audio Toggle -->
+        <div class="hud-wing hud-right">
+          <div class="hud-lives-block">
+            <span class="hud-mini-label">LIVES</span>
+            <div id="stat-lives" class="hud-lives-container">
+              <span class="hud-heart active">♥</span>
+              <span class="hud-heart active">♥</span>
+              <span class="hud-heart active">♥</span>
+            </div>
+          </div>
+          <button id="btn-audio" class="hud-audio-btn" type="button" aria-label="Toggle Sound">🔊</button>
+        </div>
+      </header>
+
+      <!-- The Judgment Tablet: Floating Ancient Slate (Lower Mid) -->
+      <div id="story-card" class="judgment-tablet">
+        <div class="tablet-header">
+          <div class="header-left">
+            <div id="soul-name" class="tablet-soul-name">Loading Soul...</div>
+            <div id="soul-title" class="tablet-soul-title">Courtroom Subject</div>
+          </div>
+          <div class="header-right">
+            <span id="soul-archetype" class="tablet-badge archetype">UNKNOWN</span>
+            <span id="soul-age" class="tablet-badge age">Age 0</span>
+          </div>
+        </div>
+
+        <div class="tablet-body">
+          <div class="dilemma-slate">
+            <div id="story-dilemma" class="dilemma-text">Weighing earthly deeds against celestial balance...</div>
+          </div>
+
+          <div class="evidence-tablets-row">
+            <div class="evidence-tablet tablet-virtue">
+              <div class="evidence-tag-row">
+                <span class="evidence-icon">🪽</span>
+                <span class="evidence-label">VIRTUE</span>
+              </div>
+              <div id="story-virtue" class="evidence-text">Calculating earthly merits...</div>
+            </div>
+
+            <div class="evidence-tablet tablet-sin">
+              <div class="evidence-tag-row">
+                <span class="evidence-icon">🔥</span>
+                <span class="evidence-label">TRANSGRESSION</span>
+              </div>
+              <div id="story-sin" class="evidence-text">Calculating earthly burdens...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- In-Game Compact Ability Artifact Tokens -->
+      <div id="ability-bar" class="ability-artifacts-bar">
+        <!-- Injected dynamically based on unlocked skills -->
+      </div>
+
+      <!-- Monumental 3D Physical Judgment Altars -->
+      <div id="actions-container" class="judgment-altars-row">
+        <!-- HEAVEN ALTAR PEDESTAL -->
+        <button id="btn-heaven" class="altar-button altar-heaven" type="button" aria-label="Send to Heaven">
+          <div class="altar-pedestal-bevel"></div>
+          <div class="altar-platform">
+            <div class="altar-crest">
+              <span class="crest-glyph">🪽</span>
+            </div>
+            <span class="altar-title">HEAVEN</span>
+            <span id="hint-heaven" class="altar-key">[A]</span>
+          </div>
+          <div class="altar-glow-burst"></div>
+        </button>
+
+        <!-- HELL ALTAR PEDESTAL -->
+        <button id="btn-hell" class="altar-button altar-hell" type="button" aria-label="Send to Hell">
+          <div class="altar-pedestal-bevel"></div>
+          <div class="altar-platform">
+            <div class="altar-crest">
+              <span class="crest-glyph">🔥</span>
+            </div>
+            <span class="altar-title">HELL</span>
+            <span id="hint-hell" class="altar-key">[D]</span>
+          </div>
+          <div class="altar-glow-burst"></div>
+        </button>
+      </div>
+
+      <!-- AI Verdict & Moral Evaluation Modal -->
+      <div id="verdict-modal" role="dialog" aria-modal="true">
+        <div class="modal-content verdict-tablet">
+          <div id="verdict-badge" class="badge-correct">CORRECT JUDGMENT +1</div>
+          <div id="verdict-score" class="verdict-score">STRONG JUDGMENT (82/100)</div>
+          <div id="verdict-reasoning" class="verdict-reasoning">"You prioritized the lives saved, despite the deliberate harm."</div>
+          <div id="verdict-quote" class="verdict-quote">"May she live in peace..."</div>
+          <div class="tap-hint">Tap anywhere to summon next soul</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 4: ARCHANGEL TRIBUNAL SEQUENCE
+         ========================================== -->
+    <div id="angel-screen" class="angel-overlay">
+      <div class="angel-dialog-box">
+        <div class="angel-badge">✦ THE ARCHANGEL'S TRIBUNAL ✦</div>
+        
+        <div id="angel-dialogue-content" class="angel-dialogue-text">
+          <!-- Populated sequentially by app.js -->
+        </div>
+
+        <div id="angel-destiny-container" class="destiny-container hidden">
+          <div class="destiny-lead">YOUR SOUL BELONGS IN...</div>
+          <div id="angel-destiny-banner" class="destiny-banner">HEAVEN</div>
+        </div>
+
+        <div id="angel-tap-hint" class="tap-hint">Tap to continue</div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 5: RUN RESULTS SCREEN
+         ========================================== -->
+    <div id="screen-run-results" class="game-screen">
+      <div class="results-container">
+        <div class="results-header">
+          <div class="results-title">JUDGMENT COMPLETE</div>
+          <div id="results-highscore-tag" class="banner-tag gold hidden">★ NEW HIGH SCORE! ★</div>
+          <div id="results-levelup-tag" class="banner-tag emerald hidden">★ LEVEL UP! ★</div>
+        </div>
+
+        <div class="results-grid">
+          <div class="results-card-item">
+            <span class="item-label">RUN SCORE</span>
+            <span id="results-score" class="item-val highlight">0</span>
+          </div>
+          <div class="results-card-item">
+            <span class="item-label">HIGH SCORE</span>
+            <span id="results-highscore" class="item-val">0</span>
+          </div>
+          <div class="results-card-item">
+            <span class="item-label">SOULS JUDGED</span>
+            <span id="results-judged" class="item-val">0</span>
+          </div>
+          <div class="results-card-item">
+            <span class="item-label">XP EARNED</span>
+            <span id="results-xp-earned" class="item-val xp-highlight">+0</span>
+          </div>
+        </div>
+
+        <div class="results-progression-row">
+          <div class="prog-info">
+            <span class="prog-label">TOTAL XP:</span>
+            <span id="results-total-xp" class="prog-val">0</span>
+          </div>
+          <div class="prog-info">
+            <span class="prog-label">CURRENT RANK:</span>
+            <span id="results-rank" class="prog-val">MORTAL</span>
+          </div>
+        </div>
+
+        <div class="results-profile-box">
+          <span class="profile-tag">YOUR MORAL PROFILE</span>
+          <div id="results-profile-title" class="profile-title">THE BALANCED JUDGE</div>
+          <div id="results-profile-desc" class="profile-desc">You weighed consequences and intentions with equal measure.</div>
+        </div>
+
+        <div class="results-actions">
+          <button id="results-btn-skills" class="menu-btn" type="button">⚖️ SKILL TREE</button>
+          <button id="results-btn-replay" class="menu-btn primary-btn" type="button">✦ JUDGE AGAIN ✦</button>
+          <button id="results-btn-menu" class="menu-btn" type="button">🏠 MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 6: PERMANENT SKILL TREE ("THE JUDGE")
+         ========================================== -->
+    <div id="screen-skill-tree" class="game-screen">
+      <div class="skill-tree-container">
+        <div class="tree-header">
+          <div class="tree-title">THE JUDGE</div>
+          <div class="tree-subtitle">Permanent Divine Abilities</div>
+          
+          <div class="tree-progression-bar">
+            <div class="tree-level-info">
+              <span>LEVEL <strong id="tree-player-level">1</strong> — <strong id="tree-player-title">MORTAL</strong></span>
+              <span id="tree-xp-counter" class="xp-highlight">0 / 10 XP</span>
+            </div>
+            <div class="xp-track">
+              <div id="tree-xp-bar" class="xp-fill"></div>
+            </div>
+            <div class="available-xp-badge">
+              AVAILABLE XP: <strong id="tree-available-xp">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branches Navigation Tabs -->
+        <div class="branch-tabs">
+          <button id="tab-justice" class="branch-tab active" type="button">✦ JUSTICE</button>
+          <button id="tab-authority" class="branch-tab" type="button">✦ AUTHORITY</button>
+          <button id="tab-divinity" class="branch-tab" type="button">✦ DIVINITY</button>
+        </div>
+
+        <!-- Branch Content Area -->
+        <div id="branch-content" class="branch-content">
+          <!-- Injected dynamically by app.js / skills.js -->
+        </div>
+
+        <div class="tree-footer">
+          <button id="btn-skills-back" class="btn-text-back" type="button">← BACK TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 7: HIGH SCORE
+         ========================================== -->
+    <div id="screen-high-score" class="game-screen">
+      <div class="subscreen-container">
+        <div class="subscreen-header">
+          <div class="subscreen-title">HIGH SCORE</div>
+          <div class="subscreen-subtitle">Your Celestial Legacy</div>
+        </div>
+
+        <div class="records-grid">
+          <div class="record-card">
+            <span class="record-icon">🏆</span>
+            <span class="record-label">BEST SCORE</span>
+            <span id="record-best-score" class="record-val highlight">0</span>
+          </div>
+          <div class="record-card">
+            <span class="record-icon">🔥</span>
+            <span class="record-label">BEST STREAK</span>
+            <span id="record-best-streak" class="record-val">0</span>
+          </div>
+          <div class="record-card">
+            <span class="record-icon">👥</span>
+            <span class="record-label">SOULS JUDGED</span>
+            <span id="record-souls-judged" class="record-val">0</span>
+          </div>
+          <div class="record-card">
+            <span class="record-icon">✨</span>
+            <span class="record-label">LIFETIME XP</span>
+            <span id="record-lifetime-xp" class="record-val xp-highlight">0</span>
+          </div>
+        </div>
+
+        <div class="subscreen-footer">
+          <button id="btn-highscore-back" class="btn-main-action" type="button">← BACK TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 8: SETTINGS
+         ========================================== -->
+    <div id="screen-settings" class="game-screen">
+      <div class="subscreen-container">
+        <div class="subscreen-header">
+          <div class="subscreen-title">SETTINGS</div>
+          <div class="subscreen-subtitle">Celestial Environment & Audio</div>
+        </div>
+
+        <div class="settings-list">
+          <div class="settings-item">
+            <span class="settings-label">SOUND FX</span>
+            <button id="setting-toggle-sound" class="btn-toggle active" type="button">ENABLED</button>
+          </div>
+          <div class="settings-item">
+            <span class="settings-label">MUSIC & DRONES</span>
+            <button id="setting-toggle-music" class="btn-toggle active" type="button">ENABLED</button>
+          </div>
+          <div class="settings-item danger">
+            <span class="settings-label">RESET SAVE DATA</span>
+            <button id="setting-btn-reset" class="btn-danger" type="button">RESET ALL</button>
+          </div>
+        </div>
+
+        <div class="subscreen-footer">
+          <button id="btn-settings-back" class="btn-main-action" type="button">← BACK TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Preloaded Game Audio Elements -->
+  <audio id="bgm-menu" preload="auto" loop src="menu.mp3"></audio>
+  <audio id="sfx-heaven" preload="auto" src="heaven.mp3"></audio>
+  <audio id="sfx-hell" preload="auto" src="hell.mp3"></audio>
+  <audio id="sfx-final" preload="auto" src="final.mp3"></audio>
+
+  <!-- Game Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/stories.js"></script>
+  <script src="js/skills.js"></script>
+  <script src="js/character.js"></script>
+  <script src="js/environment.js"></script>
+  <script src="js/animator.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
